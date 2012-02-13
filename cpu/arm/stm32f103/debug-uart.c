@@ -4,19 +4,52 @@
 #include <stm32f10x_dma.h>
 #include <gpio.h>
 #include <nvic.h>
+#include "contiki-conf.h"
 
-#ifndef DBG_UART
-#define DBG_UART USART1
+/* UART number */
+#ifndef DBG_UART_NUM
+#define DBG_UART_NUM 1
 #endif
 
-#ifndef DBG_DMA_NO
+/* UART ports and pins */
+#ifndef DBG_UART_TXPORT
+#define DBG_UART_TXPORT B
+#endif
+#ifndef DBG_UART_TXPIN
+#define DBG_UART_TXPIN 6
+#endif
+#ifndef DBG_UART_RXPORT
+#define DBG_UART_RXPORT B
+#endif
+#ifndef DBG_UART_RXPIN
+#define DBG_UART_RXPIN 7
+#endif
+
+/* Remap: 1, no remap: 0 */
+#ifndef DBG_UART_REMAP
+#define DBG_UART_REMAP 1
+#endif
+
+#define _DBG_UART_NAME(a, num) a ## num
+#define DBG_UART_NAME(a, num) _DBG_UART_NAME(a, num)
+
+#ifdef DBG_UART_NUM
+#define DBG_UART DBG_UART_NAME(USART, DBG_UART_NUM)
+#endif
+
+/* DMA controller for TX is always 1 */
 #define DBG_DMA_NO 1
-#endif
 
-#ifndef DBG_DMA_CHANNEL_NO
+/* DMA request mapping, channels for TX */
+#if (DBG_UART_NUM) == (1)
 #define DBG_DMA_CHANNEL_NO 4
+#elif (DBG_UART_NUM) == (2)
+#define DBG_DMA_CHANNEL_NO 7
+#elif (DBG_UART_NUM) == (3)
+#define DBG_DMA_CHANNEL_NO 2
+#else
+#error "Debug UART not supported"
 #endif
-
 
 #define _DBG_DMA_NAME(x) DMA##x
 #define DBG_DMA_NAME(x) _DBG_DMA_NAME(x)
@@ -31,31 +64,59 @@
 #define DBG_DMA_CHANNEL_IFCR_CGIF \
 _XDBG_DMA_CHANNEL_IFCR_CGIF(DBG_DMA_CHANNEL_NO)
 
-
 #ifndef DBG_XMIT_BUFFER_LEN
 #define DBG_XMIT_BUFFER_LEN 1024
 #endif
 
-
 static unsigned char xmit_buffer[DBG_XMIT_BUFFER_LEN];
 #define XMIT_BUFFER_END &xmit_buffer[DBG_XMIT_BUFFER_LEN]
+
 void
 dbg_setup_uart_default()
 {
-  RCC->APB2ENR |=  (RCC_APB2ENR_AFIOEN
-		    | RCC_APB2ENR_IOPAEN| RCC_APB2ENR_IOPBEN
-		    | RCC_APB2ENR_USART1EN );
+  /* TODO: Check which ports really need to be enabled for USART 1, 2 and 3 */
+  RCC->APB2ENR |= (RCC_APB2ENR_AFIOEN |
+		   RCC_APB2ENR_IOPAEN |
+		   RCC_APB2ENR_IOPBEN);
+
+#if (DBG_UART_NUM) == 1
+  RCC->APB2ENR |= (RCC_APB2ENR_USART1EN);
+#if (DBG_UART_REMAP)
+  AFIO_REMAP(AFIO_MAPR_USART1_REMAP, AFIO_MAPR_USART1_REMAP);
+#endif
+#elif (DBG_UART_NUM) == 2
+  RCC->APB2ENR |= (RCC_APB1ENR_USART2EN);
+#if (DBG_UART_REMAP)
+  AFIO_REMAP(AFIO_MAPR_USART2_REMAP, AFIO_MAPR_USART2_REMAP);
+#endif
+#elif (DBG_UART_NUM) == 3
+  RCC->APB1ENR |= (RCC_APB1ENR_USART3EN);
+#if (DBG_UART_REMAP)
+  AFIO_REMAP(AFIO_MAPR_USART3_REMAP, AFIO_MAPR_USART3_REMAP);
+#endif
+#endif
+
   RCC->AHBENR |= RCC_AHBENR_DMA1EN;
-  AFIO_REMAP( AFIO_MAPR_USART1_REMAP, AFIO_MAPR_USART1_REMAP);
-  GPIO_CONF_OUTPUT_PORT(B,6,ALT_PUSH_PULL,50);
-  GPIO_CONF_INPUT_PORT(B,7,FLOATING);
-  
-  USART1->CR1 = USART_CR1_UE;
-  
-  USART1->CR2 = 0;
-  USART1->CR3 = USART_CR3_DMAT;
-  USART1->CR1 |= USART_CR1_TE;
-  USART1->BRR= 0x1a1;
+
+#define DBG_UART_SET_TXPORT(port,pin,pp,n) GPIO_CONF_OUTPUT_PORT(port,pin,pp,n)
+#define DBG_UART_SET_RXPORT(port,pin,f) GPIO_CONF_INPUT_PORT(port,pin,f)
+
+  DBG_UART_SET_TXPORT( DBG_UART_TXPORT, DBG_UART_TXPIN, ALT_PUSH_PULL, 50);
+  DBG_UART_SET_RXPORT( DBG_UART_RXPORT, DBG_UART_RXPIN, FLOATING);
+
+#undef DBG_UART_SET_TXPORT
+#undef DBG_UART_SET_RXPORT
+
+  DBG_UART->CR1 = USART_CR1_UE | USART_CR1_TE | USART_CR1_RE;
+  DBG_UART->CR2 = 0;
+  DBG_UART->CR3 = USART_CR3_DMAT;
+
+  /* For now, hard code baud rates. USART1 is on APB1, all others on APB2 */
+#if DBG_UART_NUM == 1
+  DBG_UART->BRR= 0x1a1;
+#else
+  DBG_UART->BRR= 0x0d0;
+#endif
 }
 
 /* Valid data in head to tail-1 */
@@ -70,8 +131,8 @@ static unsigned char * volatile xmit_buffer_tail = xmit_buffer;
 
 volatile unsigned char dma_running = 0;
 static unsigned char * volatile dma_end;
-void
-DMA1_Channel4_handler() __attribute__((interrupt));
+void DMA1_Channel4_handler() __attribute__((interrupt));
+void DMA2_Channel4_5_handler() __attribute__((interrupt));
 
 
 static void
@@ -96,13 +157,24 @@ update_dma(void)
     DBG_DMA_CHANNEL->CNDTR =  XMIT_BUFFER_END - xmit_buffer_head;
     dma_end = xmit_buffer;
   }
+#if DBG_UART_NUM == 1
   NVIC_ENABLE_INT(DMA1_Channel4_IRQChannel);
   NVIC_SET_PRIORITY(DMA1_Channel4_IRQChannel, 2);
-  DBG_DMA_CHANNEL->CCR |=DMA_CCR4_EN;
+  DBG_DMA_CHANNEL->CCR |= DMA_CCR4_EN;
+#elif DBG_UART_NUM == 2
+  NVIC_ENABLE_INT(DMA1_Channel7_IRQChannel);
+  NVIC_SET_PRIORITY(DMA1_Channel7_IRQChannel, 2);
+  DBG_DMA_CHANNEL->CCR |= DMA_CCR2_EN;
+#elif DBG_UART_NUM == 3
+  NVIC_ENABLE_INT(DMA1_Channel2_IRQChannel);
+  NVIC_SET_PRIORITY(DMA1_Channel2_IRQChannel, 2);
+  DBG_DMA_CHANNEL->CCR |= DMA_CCR2_EN;
+#else
+#error "DGB_DMA is not 1 or 2"
+#endif
 }
 
-
-
+#if DBG_UART_NUM == 1
 void
 DMA1_Channel4_handler()
 {
@@ -114,6 +186,35 @@ DMA1_Channel4_handler()
   }
   update_dma();
 }
+#endif
+
+#if DBG_UART_NUM == 2
+void
+DMA1_Channel7_handler()
+{
+  DBG_DMA->IFCR = DBG_DMA_CHANNEL_IFCR_CGIF;
+  xmit_buffer_head = dma_end;
+  if (xmit_buffer_tail == xmit_buffer_head) {
+    dma_running = 0;
+    return;
+  }
+  update_dma();
+}
+#endif
+
+#if DBG_UART_NUM == 3
+void
+DMA1_Channel2_handler()
+{
+  DBG_DMA->IFCR = DBG_DMA_CHANNEL_IFCR_CGIF;
+  xmit_buffer_head = dma_end;
+  if (xmit_buffer_tail == xmit_buffer_head) {
+    dma_running = 0;
+    return;
+  }
+  update_dma();
+}
+#endif
 
 unsigned int
 dbg_send_bytes(const unsigned char *seq, unsigned int len)
