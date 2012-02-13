@@ -8,6 +8,8 @@
 #define _BKP
 #define _AFIO
 #define _USART1
+#define _USART2
+#define _USART3
 #define _NVIC
 #define _SysTick
 #define _USB
