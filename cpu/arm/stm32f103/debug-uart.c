@@ -283,3 +283,13 @@ dbg_drain()
 {
   while(xmit_buffer_tail != xmit_buffer_head);
 }
+
+int 
+dbg_getchar(unsigned char *c)
+{
+  if (DBG_UART->SR & USART_SR_RXNE) {
+    *c = DBG_UART->DR & 0xFF;
+    return 1;
+  }
+  return 0;
+}
