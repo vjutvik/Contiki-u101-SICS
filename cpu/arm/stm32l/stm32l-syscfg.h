@@ -41,9 +41,6 @@ typedef struct
   volatile uint32_t EXTICR[4];
 } STM32L_SYSCFG;
 
-#define SYSCFG_BASE                     (APB2PERIPH_BASE + 0x0000)
-#define SYSCFG                          ((STM32L_SYSCFG *)SYSCFG_BASE)
-
 #define SYSCFG_PMC_USB_PU               ((uint32_t)0x00000001)
 
 #endif

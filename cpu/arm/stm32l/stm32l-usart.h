@@ -52,14 +52,6 @@ typedef struct {
   const uint16_t R6;
 } STM32L_USART;
 
-#define USART1_BASE                     (APB2PERIPH_BASE + 0x3800)
-#define USART2_BASE                     (APB1PERIPH_BASE + 0x4400)
-#define USART3_BASE                     (APB1PERIPH_BASE + 0x4800)
-
-#define USART1                          ((STM32L_USART *)USART1_BASE)
-#define USART2                          ((STM32L_USART *)USART2_BASE)
-#define USART3                          ((STM32L_USART *)USART3_BASE)
-
 #define USART_SR_PE                     ((uint16_t)0x0001)
 #define USART_SR_FE                     ((uint16_t)0x0002)
 #define USART_SR_NE                     ((uint16_t)0x0004)

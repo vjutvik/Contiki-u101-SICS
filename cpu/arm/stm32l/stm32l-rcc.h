@@ -52,9 +52,6 @@ typedef struct {
   volatile uint32_t CSR;
 } STM32L_RCC;
 
-#define RCC_BASE                        (AHBPERIPH_BASE + 0x3800)
-#define RCC                             ((STM32L_RCC *)RCC_BASE)
-
 #define RCC_CR_HSION                    ((uint32_t)0x00000001)
 #define RCC_CR_HSIRDY                   ((uint32_t)0x00000002)
 #define RCC_CR_MSION                    ((uint32_t)0x00000100)
@@ -294,7 +291,6 @@ typedef struct {
 #define RCC_CSR_LSEON                   ((uint32_t)0x00000100)
 #define RCC_CSR_LSERDY                  ((uint32_t)0x00000200)
 #define RCC_CSR_LSEBYP                  ((uint32_t)0x00000400)
-
 
 uint32_t stm32l_clocks_hclk(void);
 uint32_t stm32l_clocks_pclk1(void);

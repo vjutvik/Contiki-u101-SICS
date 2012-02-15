@@ -34,6 +34,13 @@
 #define STM32L_H
 
 #include <stdint.h>
+#include "stm32l-gpio.h"
+#include "stm32l-rcc.h"
+#include "stm32l-flash.h"
+#include "stm32l-dma.h"
+#include "stm32l-pwr.h"
+#include "stm32l-syscfg.h"
+#include "stm32l-usart.h"
 
 #define FLASH_BASE                      ((uint32_t)0x08000000)
 #define SRAM_BASE                       ((uint32_t)0x20000000)
@@ -42,6 +49,75 @@
 #define APB1PERIPH_BASE                 (PERIPHERAL_BASE)
 #define APB2PERIPH_BASE                 (PERIPHERAL_BASE + 0x10000)
 #define AHBPERIPH_BASE                  (PERIPHERAL_BASE + 0x20000)
+
+/* AHB */
+
+#define GPIOA_BASE                      (AHBPERIPH_BASE + 0x0000)
+#define GPIOA                           ((STM32L_GPIO *)GPIOA_BASE)
+
+#define GPIOB_BASE                      (AHBPERIPH_BASE + 0x0400)
+#define GPIOB                           ((STM32L_GPIO *)GPIOB_BASE)
+
+#define GPIOC_BASE                      (AHBPERIPH_BASE + 0x0800)
+#define GPIOC                           ((STM32L_GPIO *)GPIOC_BASE)
+
+#define GPIOD_BASE                      (AHBPERIPH_BASE + 0x0C00)
+#define GPIOD                           ((STM32L_GPIO *)GPIOD_BASE)
+
+#define GPIOE_BASE                      (AHBPERIPH_BASE + 0x1000)
+#define GPIOE                           ((STM32L_GPIO *)GPIOE_BASE)
+
+#define GPIOH_BASE                      (AHBPERIPH_BASE + 0x1400)
+#define GPIOH                           ((STM32L_GPIO *)GPIOH_BASE)
+
+#define RCC_BASE                        (AHBPERIPH_BASE + 0x3800)
+#define RCC                             ((STM32L_RCC *)RCC_BASE)
+
+#define FLASH_R_BASE                    (AHBPERIPH_BASE + 0x3c00)
+#define FLASH                           ((STM32L_FLASH *)FLASH_R_BASE)
+
+#define DMA1_BASE                       (AHBPERIPH_BASE + 0x6000)
+#define DMA1                            ((STM32L_DMA *)DMA1_BASE)
+
+#define DMA1_CHANNEL1_BASE              (DMA1_BASE + 0x0008)
+#define DMA1_CHANNEL1                   ((STM32L_DMA_CHN *)DMA1_CHANNEL1_BASE)
+
+#define DMA1_CHANNEL2_BASE              (DMA1_BASE + 0x001C)
+#define DMA1_CHANNEL2                   ((STM32L_DMA_CHN *)DMA1_CHANNEL2_BASE)
+
+#define DMA1_CHANNEL3_BASE              (DMA1_BASE + 0x0030)
+#define DMA1_CHANNEL3                   ((STM32L_DMA_CHN *)DMA1_CHANNEL3_BASE)
+
+#define DMA1_CHANNEL4_BASE              (DMA1_BASE + 0x0044)
+#define DMA1_CHANNEL4                   ((STM32L_DMA_CHN *)DMA1_CHANNEL4_BASE)
+
+#define DMA1_CHANNEL5_BASE              (DMA1_BASE + 0x0058)
+#define DMA1_CHANNEL5                   ((STM32L_DMA_CHN *)DMA1_CHANNEL5_BASE)
+
+#define DMA1_CHANNEL6_BASE              (DMA1_BASE + 0x006C)
+#define DMA1_CHANNEL6                   ((STM32L_DMA_CHN *)DMA1_CHANNEL6_BASE)
+
+#define DMA1_CHANNEL7_BASE              (DMA1_BASE + 0x0080)
+#define DMA1_CHANNEL7                   ((STM32L_DMA_CHN *)DMA1_CHANNEL7_BASE)
+
+#define PWR_BASE                        (APB1PERIPH_BASE + 0x7000)
+#define PWR                             ((STM32L_PWR *)PWR_BASE)
+
+/* APB1 */
+
+#define USART2_BASE                     (APB1PERIPH_BASE + 0x4400)
+#define USART2                          ((STM32L_USART *)USART2_BASE)
+
+#define USART3_BASE                     (APB1PERIPH_BASE + 0x4800)
+#define USART3                          ((STM32L_USART *)USART3_BASE)
+
+/* APB2 */
+
+#define SYSCFG_BASE                     (APB2PERIPH_BASE + 0x0000)
+#define SYSCFG                          ((STM32L_SYSCFG *)SYSCFG_BASE)
+
+#define USART1_BASE                     (APB2PERIPH_BASE + 0x3800)
+#define USART1                          ((STM32L_USART *)USART1_BASE)
 
 #define SET_BIT(REG, BIT)     ((REG) |= (BIT))
 

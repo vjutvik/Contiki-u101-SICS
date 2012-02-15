@@ -47,9 +47,6 @@ typedef struct {
   volatile uint32_t WRPR;
 } STM32L_FLASH;
 
-#define FLASH_R_BASE                    (AHBPERIPH_BASE + 0x3c00)
-#define FLASH                           ((STM32L_FLASH *)FLASH_R_BASE)
-
 #define  FLASH_ACR_LATENCY              ((uint32_t)0x00000001)
 #define  FLASH_ACR_PRFTEN               ((uint32_t)0x00000002)
 #define  FLASH_ACR_ACC64                ((uint32_t)0x00000004)

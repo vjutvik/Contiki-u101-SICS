@@ -56,19 +56,6 @@ typedef struct {
   volatile uint32_t AFR[2];
 } STM32L_GPIO;
 
-#define GPIOA_BASE                      (AHBPERIPH_BASE + 0x0000)
-#define GPIOB_BASE                      (AHBPERIPH_BASE + 0x0400)
-#define GPIOC_BASE                      (AHBPERIPH_BASE + 0x0800)
-#define GPIOD_BASE                      (AHBPERIPH_BASE + 0x0C00)
-#define GPIOE_BASE                      (AHBPERIPH_BASE + 0x1000)
-#define GPIOH_BASE                      (AHBPERIPH_BASE + 0x1400)
-
-#define GPIOA                           ((STM32L_GPIO *)GPIOA_BASE)
-#define GPIOB                           ((STM32L_GPIO *)GPIOB_BASE)
-#define GPIOC                           ((STM32L_GPIO *)GPIOC_BASE)
-#define GPIOD                           ((STM32L_GPIO *)GPIOD_BASE)
-#define GPIOE                           ((STM32L_GPIO *)GPIOE_BASE)
-#define GPIOH                           ((STM32L_GPIO *)GPIOH_BASE)
 
 #define GPIO_MODE_MASK                  ((uint32_t)0x3)
 #define GPIO_MODE_INPUT                 ((uint32_t)0x0)

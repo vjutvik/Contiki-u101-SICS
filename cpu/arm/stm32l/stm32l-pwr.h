@@ -39,9 +39,6 @@ typedef struct
   volatile uint32_t CSR;
 } STM32L_PWR;
 
-#define PWR_BASE                        (APB1PERIPH_BASE + 0x7000)
-#define PWR                             ((STM32L_PWR *)PWR_BASE)
-
 #define PWR_CR_LPSDSR                   ((uint16_t)0x0001)
 #define PWR_CR_PDDS                     ((uint16_t)0x0002)
 #define PWR_CR_CWUF                     ((uint16_t)0x0004)

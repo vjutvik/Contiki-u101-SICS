@@ -45,24 +45,6 @@ typedef struct {
   volatile uint32_t CMAR;
 } STM32L_DMA_CHN;
 
-#define DMA1_BASE                       (AHBPERIPH_BASE + 0x6000)
-#define DMA1_CHANNEL1_BASE              (DMA1_BASE + 0x0008)
-#define DMA1_CHANNEL2_BASE              (DMA1_BASE + 0x001C)
-#define DMA1_CHANNEL3_BASE              (DMA1_BASE + 0x0030)
-#define DMA1_CHANNEL4_BASE              (DMA1_BASE + 0x0044)
-#define DMA1_CHANNEL5_BASE              (DMA1_BASE + 0x0058)
-#define DMA1_CHANNEL6_BASE              (DMA1_BASE + 0x006C)
-#define DMA1_CHANNEL7_BASE              (DMA1_BASE + 0x0080)
-
-#define DMA1                            ((STM32L_DMA *)DMA1_BASE)
-#define DMA1_CHANNEL1                   ((STM32L_DMA_CHN *)DMA1_CHANNEL1_BASE)
-#define DMA1_CHANNEL2                   ((STM32L_DMA_CHN *)DMA1_CHANNEL2_BASE)
-#define DMA1_CHANNEL3                   ((STM32L_DMA_CHN *)DMA1_CHANNEL3_BASE)
-#define DMA1_CHANNEL4                   ((STM32L_DMA_CHN *)DMA1_CHANNEL4_BASE)
-#define DMA1_CHANNEL5                   ((STM32L_DMA_CHN *)DMA1_CHANNEL5_BASE)
-#define DMA1_CHANNEL6                   ((STM32L_DMA_CHN *)DMA1_CHANNEL6_BASE)
-#define DMA1_CHANNEL7                   ((STM32L_DMA_CHN *)DMA1_CHANNEL7_BASE)
-
 #define DMA_ISR_GIF1                    ((uint32_t)0x00000001)
 #define DMA_ISR_TCIF1                   ((uint32_t)0x00000002)
 #define DMA_ISR_HTIF1                   ((uint32_t)0x00000004)
