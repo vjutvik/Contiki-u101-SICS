@@ -1,0 +1,182 @@
+
+### Code common for all ARM CPUs
+
+CONTIKI_CPU_ARM=$(CONTIKI)/cpu/arm/
+CONTIKI_CPU_ARM_COMMON=$(CONTIKI_CPU_ARM)/common
+
+### Define the CPU directory
+CONTIKI_CPU=$(CONTIKI_CPU_ARM)/stm32l
+
+
+### Define the source files we have in the STM32L port
+
+CONTIKI_CPU_DIRS = . ../common/dbg-io ../common/usb loader
+
+STM32L += clock.c
+STM32L += debug-uart.c
+STM32L += newlib-syscalls.c
+STM32L += stm32l-rcc.c
+STM32L += stm32l-flash.c
+STM32L += stm32l-gpio.c
+
+# SYSAPPS = codeprop-otf.c
+# APPDIRS += $(CONTIKI)/cpu/at91sam7s/loader
+
+# ELFLOADER = elfloader-otf.c elfloader-arm.c symtab.c cfs-ram.c
+
+include $(CONTIKI_CPU_ARM_COMMON)/usb/Makefile.usb
+
+include $(CONTIKI_CPU_ARM_COMMON)/SD-card/Makefile.sdcard
+
+TARGETLIBS = random.c dbg-printf.c dbg-puts.c dbg-putchar.c dbg-sprintf.c dbg-snprintf.c strformat.c
+
+CONTIKI_TARGET_SOURCEFILES += $(STM32L) $(SYSAPPS) $(ELFLOADER) \
+			$(TARGETLIBS) $(UIPDRIVERS) $(USB)
+
+CONTIKI_SOURCEFILES        += $(CONTIKI_TARGET_SOURCEFILES)
+
+THREADS =
+
+### Compiler definitions
+CC       = arm-none-eabi-gcc
+LD       = arm-none-eabi-ld
+AS       = arm-none-eabi-as
+AR       = arm-none-eabi-ar
+NM       = arm-none-eabi-nm
+OBJCOPY  = arm-none-eabi-objcopy
+STRIP    = arm-none-eabi-strip
+
+XSLTPROC=xsltproc
+
+PROJECT_OBJECTFILES += ${addprefix $(OBJECTDIR)/,$(CONTIKI_TARGET_MAIN:.c=.o)}
+
+LINKERSCRIPT = $(CONTIKI_CPU)/STM32LXXXRB.ld
+
+STARTUP=${addprefix $(OBJECTDIR)/,startup-stm32l.o}
+
+# JTAG program upload
+OPENOCD	= openocd
+OPENOCD_DIR = $(CONTIKI_CPU_ARM)/openocd/target
+OPENOCD_CFG = 
+
+# Use OpenOCD by default
+PROG=openocd
+
+ARCH_FLAGS= -march=armv7-m -mthumb
+
+CFLAGSNO = -I. -I$(CONTIKI)/core -I$(CONTIKI_CPU) -I$(CONTIKI_CPU)/loader \
+	   -I$(CONTIKI_CPU)/dbg-io \
+           -I$(CONTIKI)/platform/$(TARGET) \
+           ${addprefix -I,$(APPDIRS)} \
+           -DWITH_UIP -DWITH_ASCII -DMCK=$(MCK) \
+           -Wall $(ARCH_FLAGS) -g -D SUBTARGET=$(SUBTARGET)
+
+CFLAGS  += $(CFLAGSNO) -O -DRUN_AS_SYSTEM -DROM_RUN
+LDFLAGS += -L $(CONTIKI_CPU) -T $(LINKERSCRIPT) -nostartfiles
+
+CDEPFLAGS = $(CFLAGS) -D __MAKING_DEPS__
+
+### Setup directory search path for source files
+
+CUSTOM_RULE_C_TO_OBJECTDIR_O=yes
+CUSTOM_RULE_C_TO_O=yes
+
+%.o: %.c
+	$(CC) $(CFLAGS) $< -c
+
+$(OBJECTDIR)/%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+
+CUSTOM_RULE_S_TO_OBJECTDIR_O = yes
+%.o: %.S
+	$(CC) $(CFLAGS) $< -c
+
+$(OBJECTDIR)/%.o: %.S
+	$(CC) $(CFLAGS) $< -c  -o $@
+
+
+CUSTOM_RULE_C_TO_CO=yes
+
+%.co: %.c
+	$(CC) $(CFLAGS) $< -c -o $@
+
+CUSTOM_RULE_C_TO_CE=yes
+
+%.ce: %.o
+	$(LD) $(LDFLAGS) --relocatable -T $(CONTIKI_CPU)/merge-rodata.ld $< -o $@
+	$(STRIP) -K _init -K _fini --strip-unneeded -g -x $@
+
+CUSTOM_RULE_LINK=yes
+
+%-stripped.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+	$(STRIP) --strip-unneeded -g -x $@
+
+%-stripped.o: %.o
+	$(STRIP) --strip-unneeded -g -x -o $@ $<
+
+%.o: ${CONTIKI_TARGET}/loader/%.S
+	$(AS) -o $(notdir $(<:.S=.o)) $<
+
+%-nosyms.$(TARGET): %.co $(PROJECT_OBJECTFILES) contiki-$(TARGET).a $(STARTUP) 
+	$(CC) $(LDFLAGS) $(CFLAGS) -nostartfiles -o $@ $(filter-out %.a,$^) $(filter %.a,$^) -lc $(filter %.a,$^)
+
+%.ihex: %.$(TARGET)
+	$(OBJCOPY) $^ -O ihex $@
+
+# This is a cludge to handle that OpenOCD currently can't write to
+# the STM32L's flash reliably. We always generate a zero padded 
+# 128kB image file. Hopefully OpenOCD will improve and we can fix this.
+%.bin: %.$(TARGET)
+	$(OBJCOPY) -O binary $< $@.tmp
+	dd if=/dev/zero of=$@ bs=1k count=128 > /dev/null 2>&1
+	dd if=$@.tmp of=$@ conv=notrunc > /dev/null 2>&1
+	rm $@.tmp
+
+.PHONY: symbols.c
+ifdef CORE
+%.$(TARGET): %.co $(PROJECT_OBJECTFILES) contiki-$(TARGET).a $(STARTUP) $(OBJECTDIR)/symbols.o
+	$(CC) $(LDFLAGS) $(CFLAGS) -nostartfiles -o $@ $(filter-out %.a,$^) $(filter %.a,$^) -lc $(filter %.a,$^)
+
+symbols.c: $(CORE)
+	$(NM) $< | awk -f $(CONTIKI_CPU)/builtins.awk -f ../../tools/mknmlist > symbols.c
+
+else
+%.$(TARGET): %-nosyms.$(TARGET)
+	ln -sf $< $@
+endif
+
+empty-symbols.c:
+	cp ${CONTIKI}/tools/empty-symbols.c symbols.c
+	cp ${CONTIKI}/tools/empty-symbols.h symbols.h
+
+# make OPENOCD_CFG=interface/jtagkey2.cfg ...
+# make OPENOCD_CFG=interface/neodb.cfg ...
+#ifeq ($(OPENOCD_CFG),)
+#$(error "Set OPENOCD_CFG to the configuration file of your JTAG adapter for OpenOCD")
+#endif
+
+%.u: %.bin
+# Clear lock bits
+	$(OPENOCD) -s $(OPENOCD_DIR) \
+	-f $(OPENOCD_CFG) \
+	-f stm32l.cfg \
+	-c init \
+	-c "soft_reset_halt; sleep 50; flash probe 0; flash erase_sector 0 0 31; sleep 50; flash write_bank 0 $< 0; reset; shutdown"
+
+%.reset:
+	$(OPENOCD) -s $(OPENOCD_DIR) -f $(OPENOCD_CFG) -f target/stm32l.cfg -c init -c "reset; shutdown"
+
+# Don't use core/loader/elfloader.c, use elfloader-otf.c instead
+$(OBJECTDIR)/elfloader.o: 
+	echo -n >$@
+
+clean: clean_cpu
+
+.PHONY: stm32test_clean
+
+clean_cpu:
+	-rm -rf $(BUILTSRCDIR)
+
+.PRECIOUS: %-nosyms.$(TARGET)
