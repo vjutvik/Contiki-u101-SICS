@@ -30,7 +30,10 @@
  *
  */
 
+#include <stdlib.h>
+#include "stm32-clk.h"
 #include "stm32l-rcc.h"
+#include "stm32l.h"
 
 const uint32_t osc_in = 8 * 1000 * 1000l;
 
@@ -135,8 +138,8 @@ a
 uint32_t stm32l_clocks_sysclk(void)
 {
         uint32_t sysclk;
-        const uint32_t hsiclk = 16 * 1000 * 1000;
-        const uint32_t msiclk = 16 * 1000 * 1000;
+        const uint32_t hsiclk = 16 * MHZ;
+        const uint32_t msiclk = 16 * MHZ;
         const uint32_t hseclk = osc_in;
         uint32_t clk_conf = RCC->CFGR & RCC_CFGR_SWS;
         uint32_t pllsrc = RCC->CFGR & RCC_CFGR_PLLSRC;
@@ -196,26 +199,79 @@ uint32_t stm32l_clocks_sysclk(void)
 }
 
 
-uint32_t stm32l_clocks_hclk(void)
+uint32_t stm32l_clk_hclk(void)
 {
         return stm32l_clocks_sysclk() / get_hpre();
 }
 
-uint32_t stm32l_clocks_pclk1(void)
+uint32_t stm32l_clk_pclk1(void)
 {
         return (stm32l_clocks_sysclk() / get_hpre()) / get_ppre1();
 }
 
-uint32_t stm32l_clocks_pclk2(void)
+uint32_t stm32l_clk_pclk2(void)
 {
         return (stm32l_clocks_sysclk() / get_hpre()) / get_ppre2();
 }
 
+/** 
+    AHB bus clock
+*/
+stm32_clk ahb_clk = {
+  .freq = stm32l_clk_hclk,
+  .enable = 0,
+};
 
+/** 
+    Clock for APB bus 1 (APB1 clock 1, PCLK1, etc) 
+*/
+stm32_clk apb1_clk = {
+  .freq = stm32l_clk_pclk1,
+  .enable = NULL,
+};
 
+/** 
+    Clock for APB bus 2 (APB1 clock 2, PCLK2, etc)
+*/
+stm32_clk apb2_clk = {
+  .freq = stm32l_clk_pclk2,
+  .enable = NULL,
+};
 
-
-typedef uint32_t (*stm32_clk)(void);
-
-
+stm32_clk stm32_clk_arch_clkof(void *periph)
+{
+  switch ((uint32_t)periph) {
+    /*
+  case ADC1_BASE:
+  case ADC2_BASE:
+  case ADC3_BASE:
+  case SPI1_BASE:
+  case TIM1_BASE:
+  case TIM8_BASE:
+  case GPIOA_BASE:
+  case GPIOB_BASE:
+  case USART1_BASE:
+    */
+    return apb2_clk;
+    break;
+    /*
+  case DAC_BASE:
+  case PWR_BASE:
+  case BKP_BASE:
+  case CAN_BASE:
+  case I2C1_BASE:
+  case I2C2_BASE:
+  case UART4_BASE:
+  case UART5_BASE:
+  case USART2_BASE:
+    */
+  case USART3_BASE:
+    return apb1_clk;
+    break;
+  defult:
+    /* Badness */
+    return apb1_clk;
+    break;
+  }
+}
 

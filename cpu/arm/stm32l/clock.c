@@ -39,6 +39,8 @@
 #include "debug-uart.h"
 #include "stm32-systick.h"
 #include "stm32l-rcc.h"
+#include "stm32-clk.h"
+#include "stm32-clk-arch.h"
 #include "stm32-nvic.h"
 
 static volatile clock_time_t current_clock = 0;
@@ -54,7 +56,7 @@ void
 SysTick_handler(void)
 {
   /* We might change the ABHCLK during runtime */
-  SysTick->LOAD = stm32l_clocks_hclk()/8/CLOCK_SECOND;
+  SysTick->LOAD = stm32_clk_frequency(ahb_clk)/8/CLOCK_SECOND;
   (void)SysTick->CTRL;
   SCB->ICSR = SCB_ICSR_PENDSTCLR;
 }
@@ -75,10 +77,10 @@ void clock_tick()
 void clock_init()
 {
   uint32_t load;
-  load = (stm32l_clocks_hclk()/8)/CLOCK_SECOND;
+  load = (stm32_clk_frequency(ahb_clk)/8)/CLOCK_SECOND;
 
   printf("AHBCLK is %ld MHz, CLOCK_SECOND is %d, SysTick LOAD is %ld\n", 
-         stm32l_clocks_hclk(), CLOCK_SECOND, load);
+         stm32_clk_frequency(ahb_clk), CLOCK_SECOND, load);
 
   NVIC_SET_SYSTICK_PRI(8);
   SysTick->LOAD = load;

@@ -10,12 +10,13 @@ CONTIKI_CPU=$(CONTIKI_CPU_ARM)/stm32l
 
 ### Define the source files we have in the STM32L port
 
-CONTIKI_CPU_DIRS = . ../common/dbg-io ../common/usb loader
+CONTIKI_CPU_DIRS = . ../common/dbg-io ../common/usb loader ../stm32
 
 STM32L += clock.c
 STM32L += debug-uart.c
 STM32L += newlib-syscalls.c
-STM32L += stm32l-rcc.c
+STM32L += stm32-clk-arch.c
+STM32L += stm32-clk.c
 STM32L += stm32l-flash.c
 STM32L += stm32l-gpio.c
 

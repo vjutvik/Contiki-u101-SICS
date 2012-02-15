@@ -42,6 +42,7 @@
 #include "stm32l-rcc.h"
 #include "stm32l-usart.h"
 #include "stm32l-dma.h"
+#include "stm32-clk.h"
 
 /* UART number */
 #ifndef DBG_UART_NUM
@@ -139,7 +140,7 @@ dbg_setup_uart_default()
   DBG_UART->CR2 = 0;
   DBG_UART->CR3 = USART_CR3_DMAT;
   DBG_UART->GTPR = 0x1;
-  DBG_UART->BRR = stm32l_clocks_pclk1()/115200;
+  DBG_UART->BRR = stm32_clk_frequency(stm32_clk_of(DBG_UART))/115200;
 }
 
 /* Valid data in head to tail-1 */
