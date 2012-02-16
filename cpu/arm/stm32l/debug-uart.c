@@ -40,7 +40,7 @@
 #include "stm32l-gpio.h"
 #include "debug-uart.h"
 #include "stm32l-rcc.h"
-#include "stm32l-usart.h"
+#include "stm32-usart.h"
 #include "stm32l-dma.h"
 #include "stm32-clk.h"
 

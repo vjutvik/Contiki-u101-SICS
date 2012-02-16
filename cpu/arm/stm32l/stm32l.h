@@ -34,13 +34,14 @@
 #define STM32L_H
 
 #include <stdint.h>
+#include "stm32-usart.h"
 #include "stm32l-gpio.h"
 #include "stm32l-rcc.h"
 #include "stm32l-flash.h"
 #include "stm32l-dma.h"
 #include "stm32l-pwr.h"
 #include "stm32l-syscfg.h"
-#include "stm32l-usart.h"
+
 
 #define FLASH_BASE                      ((uint32_t)0x08000000)
 #define SRAM_BASE                       ((uint32_t)0x20000000)
@@ -106,10 +107,10 @@
 /* APB1 */
 
 #define USART2_BASE                     (APB1PERIPH_BASE + 0x4400)
-#define USART2                          ((STM32L_USART *)USART2_BASE)
+#define USART2                          ((STM32_USART *)USART2_BASE)
 
 #define USART3_BASE                     (APB1PERIPH_BASE + 0x4800)
-#define USART3                          ((STM32L_USART *)USART3_BASE)
+#define USART3                          ((STM32_USART *)USART3_BASE)
 
 /* APB2 */
 

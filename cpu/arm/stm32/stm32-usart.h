@@ -50,7 +50,7 @@ typedef struct {
   const uint16_t R5;
   volatile uint16_t GTPR;
   const uint16_t R6;
-} STM32L_USART;
+} STM32_USART;
 
 #define USART_SR_PE                     ((uint16_t)0x0001)
 #define USART_SR_FE                     ((uint16_t)0x0002)
