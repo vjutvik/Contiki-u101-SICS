@@ -215,6 +215,14 @@ uint32_t stm32l_clk_pclk2(void)
 }
 
 /** 
+    SYSCLK
+*/
+stm32_clk sys_clk = {
+  .freq = stm32l_clk_sysclk,
+  .enable = 0,
+};
+
+/**
     AHB bus clock
 */
 stm32_clk ahb_clk = {
