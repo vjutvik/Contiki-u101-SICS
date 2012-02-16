@@ -140,7 +140,7 @@ dbg_setup_uart_default()
   DBG_UART->CR2 = 0;
   DBG_UART->CR3 = USART_CR3_DMAT;
   DBG_UART->GTPR = 0x1;
-  DBG_UART->BRR = stm32_clk_frequency(stm32_clk_of(DBG_UART))/115200;
+  DBG_UART->BRR = stm32_clk_frequency(stm32_clk_clkof(DBG_UART))/115200;
 }
 
 /* Valid data in head to tail-1 */

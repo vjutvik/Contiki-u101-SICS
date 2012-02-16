@@ -32,7 +32,7 @@
 
 #include "stm32-clk.h"
 
-stm32_clk stm32_clk_of(void *periph_base) {
+stm32_clk stm32_clk_clkof(void *periph_base) {
   return stm32_clk_arch_clkof(periph_base);
 }
 
