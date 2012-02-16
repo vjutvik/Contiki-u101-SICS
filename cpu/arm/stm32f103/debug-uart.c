@@ -5,6 +5,7 @@
 #include <gpio.h>
 #include <nvic.h>
 #include "stm32-usart.h"
+#include "stm32-clk.h"
 #include "contiki-conf.h"
 
 /* UART number */
@@ -111,13 +112,7 @@ dbg_setup_uart_default()
   DBG_UART->CR1 = USART_CR1_UE | USART_CR1_TE | USART_CR1_RE;
   DBG_UART->CR2 = 0;
   DBG_UART->CR3 = USART_CR3_DMAT;
-
-  /* For now, hard code baud rates. USART1 is on APB1, all others on APB2 */
-#if DBG_UART_NUM == 1
-  DBG_UART->BRR= 0x1a1;
-#else
-  DBG_UART->BRR= 0x0d0;
-#endif
+  DBG_UART->BRR = stm32_clk_frequency(stm32_clk_clkof(DBG_UART)) / 115200;
 }
 
 /* Valid data in head to tail-1 */
