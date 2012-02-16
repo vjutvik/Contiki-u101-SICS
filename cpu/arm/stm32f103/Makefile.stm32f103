@@ -61,8 +61,8 @@ STARTUP=${addprefix $(OBJECTDIR)/,startup-STM32F10x.o}
 
 # JTAG program upload
 OPENOCD	 = openocd
-OPENOCD_DIR = $(CONTIKI_CPU_ARM)/openocd/ 
-OPENOCD_CFG = arm7_wig.cfg
+OPENOCD_DIR = $(CONTIKI_CPU_ARM)/openocd/target
+OPENOCD_CFG = 
 
 # USB program upload
 SAMIAM=Sam_I_Am
@@ -163,7 +163,11 @@ empty-symbols.c:
 ifeq ($(PROG),openocd)
 %.u: %.bin
 	# Clear lock bits
-	$(OPENOCD) -s $(OPENOCD_DIR) -f $(OPENOCD_CFG) -c init -c "reset halt;sleep 250;flash probe 0;stm32x mass_erase 0; sleep 500;flash write_bank 0 $< 0;reset halt;resume;sleep 500;exit"
+	$(OPENOCD) -s $(OPENOCD_DIR) \
+		-f $(OPENOCD_CFG) \
+		-f target/stm32f1x.cfg \
+		-c init \
+		-c "halt; sleep 250; flash probe 0; stm32f1x mass_erase 0; sleep 500; flash write_bank 0 $< 0; reset; shutdown"
 else ifeq ($(PROG),samiam)
 %.u: %.ihex
 	# Clear lock bits
@@ -174,7 +178,11 @@ else ifeq ($(PROG),samiam)
 endif
 
 ocd_reset:
-	$(OPENOCD) -s $(OPENOCD_DIR) -f $(OPENOCD_CFG) -c init -c "reset halt;resume" -c exit
+	$(OPENOCD) -s $(OPENOCD_DIR) \
+		-f $(OPENOCD_CFG) \
+		-f target/stm32f1x.cfg \
+		-c init \
+		-c "reset; shutdown"
 
 # Don't use core/loader/elfloader.c, use elfloader-otf.c instead
 $(OBJECTDIR)/elfloader.o: 
