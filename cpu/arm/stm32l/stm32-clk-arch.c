@@ -135,7 +135,7 @@ a
  wake-up from Stop or Standby low power modes.
 
 */
-uint32_t stm32l_clocks_sysclk(void)
+uint32_t stm32l_clk_sysclk(void)
 {
         uint32_t sysclk;
         const uint32_t hsiclk = 16 * MHZ;
@@ -201,17 +201,17 @@ uint32_t stm32l_clocks_sysclk(void)
 
 uint32_t stm32l_clk_hclk(void)
 {
-        return stm32l_clocks_sysclk() / get_hpre();
+        return stm32l_clk_sysclk() / get_hpre();
 }
 
 uint32_t stm32l_clk_pclk1(void)
 {
-        return (stm32l_clocks_sysclk() / get_hpre()) / get_ppre1();
+        return (stm32l_clk_sysclk() / get_hpre()) / get_ppre1();
 }
 
 uint32_t stm32l_clk_pclk2(void)
 {
-        return (stm32l_clocks_sysclk() / get_hpre()) / get_ppre2();
+        return (stm32l_clk_sysclk() / get_hpre()) / get_ppre2();
 }
 
 /** 
