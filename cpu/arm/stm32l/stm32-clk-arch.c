@@ -248,10 +248,8 @@ stm32_clk stm32_clk_arch_clkof(void *periph)
   case SPI1_BASE:
   case TIM1_BASE:
   case TIM8_BASE:
-  case GPIOA_BASE:
-  case GPIOB_BASE:
-  case USART1_BASE:
     */
+  case USART1_BASE:
     return apb2_clk;
     break;
     /*
@@ -263,9 +261,17 @@ stm32_clk stm32_clk_arch_clkof(void *periph)
   case I2C2_BASE:
   case UART4_BASE:
   case UART5_BASE:
-  case USART2_BASE:
     */
+  case USART2_BASE:
   case USART3_BASE:
+    return apb1_clk;
+    break;
+  case GPIOA_BASE:
+  case GPIOB_BASE:
+  case GPIOC_BASE:
+  case GPIOD_BASE:
+  case GPIOE_BASE:
+  case GPIOH_BASE:
     return apb1_clk;
     break;
   defult:
