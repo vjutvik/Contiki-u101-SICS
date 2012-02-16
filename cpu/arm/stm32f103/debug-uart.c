@@ -4,6 +4,7 @@
 #include <stm32f10x_dma.h>
 #include <gpio.h>
 #include <nvic.h>
+#include "stm32-usart.h"
 #include "contiki-conf.h"
 
 /* UART number */
