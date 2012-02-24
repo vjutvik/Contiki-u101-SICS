@@ -17,6 +17,9 @@ STM32L += debug-uart.c
 STM32L += newlib-syscalls.c
 STM32L += stm32-clk-arch.c
 STM32L += stm32-clk.c
+STM32L += stm32-i2c.c
+STM32L += stm32-spi.c
+STM32L += stm32-id-arch.c
 STM32L += stm32l-flash.c
 STM32L += stm32l-gpio.c
 
