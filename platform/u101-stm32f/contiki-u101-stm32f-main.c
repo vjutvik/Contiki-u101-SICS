@@ -10,7 +10,7 @@
 #include <etimer.h>
 #include <sys/autostart.h>
 #include <clock.h>
-#include "stm32-clk-arch.c"
+#include "stm32-clk-arch.h"
 #include "contiki.h"
 
 unsigned int idle_count = 0;
