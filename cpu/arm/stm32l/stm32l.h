@@ -47,6 +47,7 @@
 #include "stm32l-dma.h"
 #include "stm32l-pwr.h"
 #include "stm32l-syscfg.h"
+#include "stm32l-exti.h"
 
 
 #define FLASH_BASE                      ((uint32_t)0x08000000)
@@ -136,11 +137,14 @@
 #define SYSCFG_BASE                     (APB2PERIPH_BASE + 0x0000)
 #define SYSCFG                          ((STM32L_SYSCFG *)SYSCFG_BASE)
 
+#define EXTI_BASE                       (APB2PERIPH_BASE + 0x0400)
+#define EXTI                            ((STM32L_EXTI *)EXTI_BASE)
+
 #define SPI1_BASE                       (APB2PERIPH_BASE + 0x3000)
-#define SPI1                            ((STM32L_SPI *)SPI1_BASE)
+#define SPI1                            ((STM32_SPI *)SPI1_BASE)
 
 #define USART1_BASE                     (APB2PERIPH_BASE + 0x3800)
-#define USART1                          ((STM32L_USART *)USART1_BASE)
+#define USART1                          ((STM32_USART *)USART1_BASE)
 
 
 
