@@ -139,7 +139,6 @@ uint32_t stm32l_clk_sysclk(void)
 {
         uint32_t sysclk;
         const uint32_t hsiclk = 16 * MHZ;
-        const uint32_t msiclk = 16 * MHZ;
         const uint32_t hseclk = osc_in;
         uint32_t clk_conf = RCC->CFGR & RCC_CFGR_SWS;
         uint32_t pllsrc = RCC->CFGR & RCC_CFGR_PLLSRC;
@@ -219,7 +218,6 @@ uint32_t stm32l_clk_pclk2(void)
 */
 stm32_clk sys_clk = {
   .freq = stm32l_clk_sysclk,
-  .enable = 0,
 };
 
 /**
@@ -227,7 +225,6 @@ stm32_clk sys_clk = {
 */
 stm32_clk ahb_clk = {
   .freq = stm32l_clk_hclk,
-  .enable = 0,
 };
 
 /** 
@@ -235,7 +232,6 @@ stm32_clk ahb_clk = {
 */
 stm32_clk apb1_clk = {
   .freq = stm32l_clk_pclk1,
-  .enable = NULL,
 };
 
 /** 
@@ -243,7 +239,6 @@ stm32_clk apb1_clk = {
 */
 stm32_clk apb2_clk = {
   .freq = stm32l_clk_pclk2,
-  .enable = NULL,
 };
 
 stm32_clk stm32_clk_arch_clkof(void *periph)
@@ -282,10 +277,68 @@ stm32_clk stm32_clk_arch_clkof(void *periph)
   case GPIOH_BASE:
     return apb1_clk;
     break;
-  defult:
+  default:
     /* Badness */
     return apb1_clk;
     break;
   }
 }
 
+static void stm32l_switch_pclk(void *periph, int enable)
+{
+  volatile uint32_t *reg;
+  uint32_t bit;
+
+  reg = NULL;
+
+  switch ((uint32_t)periph) {
+
+    /* This indentation style hopefully makes this more readable and
+       not less... */
+
+  case USART1_BASE:
+    reg = &(RCC->APB2ENR);  bit = RCC_APB2ENR_USART1EN;  break;
+  case USART2_BASE:
+    reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_USART2EN;  break;
+  case USART3_BASE: 
+    reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_USART3EN;  break;
+
+  case GPIOA_BASE:
+    reg = &(RCC->AHBENR);   bit = RCC_AHBENR_GPIOAEN;    break;
+  case GPIOB_BASE:
+    reg = &(RCC->AHBENR);   bit = RCC_AHBENR_GPIOBEN;    break;
+  case GPIOC_BASE:
+    reg = &(RCC->AHBENR);   bit = RCC_AHBENR_GPIOCEN;    break;
+  case GPIOD_BASE:
+    reg = &(RCC->AHBENR);   bit = RCC_AHBENR_GPIODEN;    break;
+  case GPIOE_BASE:
+    reg = &(RCC->AHBENR);   bit = RCC_AHBENR_GPIOEEN;    break;
+  case GPIOH_BASE:
+    reg = &(RCC->AHBENR);   bit = RCC_AHBENR_GPIOHEN;    break;
+
+  default:
+    /* No such peripheral */
+    break;
+  }
+
+  if (!reg) {
+    return;
+  }
+
+  /* Enable or disable? */
+  if (enable) {
+    *reg |= bit;
+  } else {
+    *reg &= ~(bit);
+  }
+}
+
+void stm32_clk_arch_pclk_enable(void *periph)
+{
+  stm32l_switch_pclk(periph, 1);
+}
+
+void stm32_clk_arch_pclk_disable(void *periph)
+{
+  stm32l_switch_pclk(periph, 0);
+}

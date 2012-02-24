@@ -236,3 +236,48 @@ stm32_clk stm32_clk_arch_clkof(void *periph)
   }
 }
 
+static void stm32f10x_switch_pclk(void *periph, int enable)
+{
+  volatile uint32_t *reg;
+  uint32_t bit;
+
+  reg = NULL;
+
+  switch ((uint32_t)periph) {
+
+    /* This indentation style hopefully makes this more readable and
+       not less... */
+
+  case USART1_BASE:
+    reg = &(RCC->APB2ENR);  bit = RCC_APB2ENR_USART1EN;  break;
+  case USART2_BASE:
+    reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_USART2EN;  break;
+  case USART3_BASE: 
+    reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_USART3EN;  break;
+
+  default:
+    /* No such peripheral */
+    break;
+  }
+
+  if (!reg) {
+    return;
+  }
+
+  /* Enable or disable? */
+  if (enable) {
+    *reg |= bit;
+  } else {
+    *reg &= ~(bit);
+  }
+}
+
+void stm32_clk_arch_pclk_enable(void *periph)
+{
+  stm32f10x_switch_pclk(periph, 1);
+}
+
+void stm32_clk_arch_pclk_disable(void *periph)
+{
+  stm32f10x_switch_pclk(periph, 0);
+}
