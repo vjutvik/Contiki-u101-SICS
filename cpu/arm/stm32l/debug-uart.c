@@ -111,10 +111,11 @@ static unsigned char xmit_buffer[DBG_XMIT_BUFFER_LEN];
 int dbg_active = 0;
 
 void
-dbg_setup_uart_default()
+dbg_setup_uart_default(int baudrate)
 {
+  stm32_clk_pclk_enable(DBG_UART);
+
 #if (DBG_UART_NUM) == (1)
-  RCC->APB2ENR |= RCC_APB2ENR_USART1E;
   RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
   stm32l_gpio_conf_af(GPIOA, 9);
   stm32l_gpio_conf_af(GPIOA, 10);
@@ -124,7 +125,6 @@ dbg_setup_uart_default()
 #error "Debug UART2 not yet supported"
 
 #elif (DBG_UART_NUM) == (3)
-  RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
   RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
   stm32l_gpio_map_af(GPIOB, 10, GPIO_AF_USART3);
   stm32l_gpio_map_af(GPIOB, 11, GPIO_AF_USART3);
@@ -140,7 +140,7 @@ dbg_setup_uart_default()
   DBG_UART->CR2 = 0;
   DBG_UART->CR3 = USART_CR3_DMAT;
   DBG_UART->GTPR = 0x1;
-  DBG_UART->BRR = stm32_clk_frequency(stm32_clk_clkof(DBG_UART))/115200;
+  DBG_UART->BRR = stm32_clk_frequency(stm32_clk_clkof(DBG_UART))/baudrate;
 }
 
 /* Valid data in head to tail-1 */

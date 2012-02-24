@@ -16,7 +16,7 @@ unsigned int idle_count = 0;
 int
 main()
 {
-  dbg_setup_uart();
+  dbg_setup_uart(115200);
   printf("Initialising\n");
   
   clock_init();

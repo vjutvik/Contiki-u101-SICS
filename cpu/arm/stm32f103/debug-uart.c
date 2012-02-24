@@ -74,25 +74,23 @@ static unsigned char xmit_buffer[DBG_XMIT_BUFFER_LEN];
 #define XMIT_BUFFER_END &xmit_buffer[DBG_XMIT_BUFFER_LEN]
 
 void
-dbg_setup_uart_default()
+dbg_setup_uart_default(int baudrate)
 {
-  /* TODO: Check which ports really need to be enabled for USART 1, 2 and 3 */
+  stm32_clk_pclk_enable(DBG_UART);
+
+  /* Enable GPIO clocks. */
   RCC->APB2ENR |= (RCC_APB2ENR_AFIOEN |
 		   RCC_APB2ENR_IOPAEN |
 		   RCC_APB2ENR_IOPBEN);
-
 #if (DBG_UART_NUM) == 1
-  RCC->APB2ENR |= (RCC_APB2ENR_USART1EN);
 #if (DBG_UART_REMAP)
   AFIO_REMAP(AFIO_MAPR_USART1_REMAP, AFIO_MAPR_USART1_REMAP);
 #endif
 #elif (DBG_UART_NUM) == 2
-  RCC->APB2ENR |= (RCC_APB1ENR_USART2EN);
 #if (DBG_UART_REMAP)
   AFIO_REMAP(AFIO_MAPR_USART2_REMAP, AFIO_MAPR_USART2_REMAP);
 #endif
 #elif (DBG_UART_NUM) == 3
-  RCC->APB1ENR |= (RCC_APB1ENR_USART3EN);
 #if (DBG_UART_REMAP)
   AFIO_REMAP(AFIO_MAPR_USART3_REMAP, AFIO_MAPR_USART3_REMAP);
 #endif
@@ -112,7 +110,7 @@ dbg_setup_uart_default()
   DBG_UART->CR1 = USART_CR1_UE | USART_CR1_TE | USART_CR1_RE;
   DBG_UART->CR2 = 0;
   DBG_UART->CR3 = USART_CR3_DMAT;
-  DBG_UART->BRR = stm32_clk_frequency(stm32_clk_clkof(DBG_UART)) / 115200;
+  DBG_UART->BRR = stm32_clk_frequency(stm32_clk_clkof(DBG_UART)) / baudrate;
 }
 
 /* Valid data in head to tail-1 */

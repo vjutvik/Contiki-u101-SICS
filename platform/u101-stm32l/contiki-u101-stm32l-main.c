@@ -16,7 +16,7 @@ unsigned int idle_count = 0;
 int
 main()
 {
-  dbg_setup_uart();
+  dbg_setup_uart(115200);
   printf("Initialising %s\n", CONTIKI_VERSION_STRING);
   printf("STM32L\n");
   printf("SYSCLK:  %lu\n", stm32_clk_frequency(sys_clk));

@@ -40,7 +40,7 @@
 #endif
 
 void
-dbg_setup_uart();
+dbg_setup_uart(int baudrate);
 
 void
 dbg_set_input_handler(void (*handler)(const char *inp, unsigned int len));
