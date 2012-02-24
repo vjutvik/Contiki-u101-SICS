@@ -34,7 +34,13 @@
 #define STM32L_H
 
 #include <stdint.h>
+
+/* Generic STM32 peripherals */
+#include "stm32-spi.h"
+#include "stm32-i2c.h"
 #include "stm32-usart.h"
+
+/* STM32L-specific */
 #include "stm32l-gpio.h"
 #include "stm32l-rcc.h"
 #include "stm32l-flash.h"
@@ -106,32 +112,46 @@
 
 /* APB1 */
 
+#define SPI2_BASE                       (APB1PERIPH_BASE + 0x3800)
+#define SPI2                            ((STM32_SPI *)SPI2_BASE)
+
+/* Base address must be a typo in the datasheet */
+#define SPI3_BASE                       (APB1PERIPH_BASE + 0x3900)
+#define SPI3                            ((STM32_SPI *)SPI3_BASE)
+
 #define USART2_BASE                     (APB1PERIPH_BASE + 0x4400)
 #define USART2                          ((STM32_USART *)USART2_BASE)
 
 #define USART3_BASE                     (APB1PERIPH_BASE + 0x4800)
 #define USART3                          ((STM32_USART *)USART3_BASE)
 
+#define I2C1_BASE                       (APB1PERIPH_BASE + 0x5400)
+#define I2C1                            ((STM32_I2C *)I2C1_BASE)
+
+#define I2C2_BASE                       (APB1PERIPH_BASE + 0x5400)
+#define I2C2                            ((STM32_I2C *)I2C2_BASE)
+
 /* APB2 */
 
 #define SYSCFG_BASE                     (APB2PERIPH_BASE + 0x0000)
 #define SYSCFG                          ((STM32L_SYSCFG *)SYSCFG_BASE)
 
+#define SPI1_BASE                       (APB2PERIPH_BASE + 0x3000)
+#define SPI1                            ((STM32L_SPI *)SPI1_BASE)
+
 #define USART1_BASE                     (APB2PERIPH_BASE + 0x3800)
 #define USART1                          ((STM32L_USART *)USART1_BASE)
 
-#define SET_BIT(REG, BIT)     ((REG) |= (BIT))
 
-#define CLEAR_BIT(REG, BIT)   ((REG) &= ~(BIT))
 
-#define READ_BIT(REG, BIT)    ((REG) & (BIT))
-
-#define CLEAR_REG(REG)        ((REG) = 0x0)
-
-#define WRITE_REG(REG, VAL)   ((REG) = VAL)
-
-#define READ_REG(REG)         ((REG))
-
-#define MODIFY_REG(REG, CLEARMASK, SETMASK)  WRITE_REG((REG), (((READ_REG(REG)) & (~CLEARMASK)) | (SETMASK)))
+/* Convenience, from STM32F CPU port */
+#define SET_BIT(REG, BIT)               ((REG) |= (BIT))
+#define CLEAR_BIT(REG, BIT)             ((REG) &= ~(BIT))
+#define READ_BIT(REG, BIT)              ((REG) & (BIT))
+#define CLEAR_REG(REG)                  ((REG) = 0x0)
+#define WRITE_REG(REG, VAL)             ((REG) = VAL)
+#define READ_REG(REG)                   ((REG))
+#define MODIFY_REG(REG, CLEARMASK, SETMASK) \
+  WRITE_REG((REG), (((READ_REG(REG)) & (~CLEARMASK)) | (SETMASK)))
 
 #endif
