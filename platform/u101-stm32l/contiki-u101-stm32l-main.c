@@ -8,6 +8,8 @@
 #include "clock.h"
 #include "debug-uart.h"
 #include "contiki.h"
+#include "stm32-clk-arch.h"
+#include "stm32-clk.h"
 
 unsigned int idle_count = 0;
 
@@ -16,6 +18,11 @@ main()
 {
   dbg_setup_uart();
   printf("Initialising %s\n", CONTIKI_VERSION_STRING);
+  printf("STM32L\n");
+  printf("SYSCLK:  %lu\n", stm32_clk_frequency(sys_clk));
+  printf("AHBCLK:  %lu\n", stm32_clk_frequency(ahb_clk));
+  printf("APBCLK1: %lu\n", stm32_clk_frequency(apb1_clk));
+  printf("APBCLK2: %lu\n", stm32_clk_frequency(apb2_clk));
   clock_init();
   process_init();
   process_start(&etimer_process, NULL);
@@ -31,7 +38,3 @@ main()
   }
   return 0;
 }
-
-
-
-

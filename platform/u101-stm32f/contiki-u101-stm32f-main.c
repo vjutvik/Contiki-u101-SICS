@@ -10,6 +10,8 @@
 #include <etimer.h>
 #include <sys/autostart.h>
 #include <clock.h>
+#include "stm32-clk-arch.c"
+#include "contiki.h"
 
 unsigned int idle_count = 0;
 
@@ -17,8 +19,12 @@ int
 main()
 {
   dbg_setup_uart();
-  printf("Initialising\n");
-  
+  printf("Initialising %s\n", CONTIKI_VERSION_STRING);
+  printf("STM32F\n");
+  printf("SYSCLK: %ld\n", stm32_clk_frequency(sys_clk));
+  printf("AHBCLK: %ld\n", stm32_clk_frequency(ahb_clk));
+  printf("APBCLK1: %ld\n", stm32_clk_frequency(apb1_clk));
+  printf("APBCLK2: %ld\n", stm32_clk_frequency(apb2_clk));
   clock_init();
   process_init();
   process_start(&etimer_process, NULL);
