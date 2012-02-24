@@ -43,16 +43,27 @@ typedef void (*stm32_clk_enable_fn)(int);
 
 typedef struct {
   stm32_clk_freq_fn freq;
-  stm32_clk_enable_fn enable;
+  /* We might want to add something more here to track stuff for power
+     management later on. */
 } stm32_clk;
 
 uint32_t stm32_clk_frequency(stm32_clk clk);
-uint32_t stm32_clk_enable(stm32_clk clk);
-uint32_t stm32_clk_disable(stm32_clk clk);
 
-/* An STM32 port should implement this. Given a peripheral base address,
-   it should return an stm32_clk. */
-stm32_clk stm32_clk_arch_clkof(void *periph);
 stm32_clk stm32_clk_clkof(void *periph);
+void stm32_clk_pclk_enable(void *periph);
+void stm32_clk_pclk_disable(void *periph);
+
+/* An STM32 port should implement these. */
+
+/* Given a peripheral base address, it should return an stm32_clk which
+   is the clock of the bus which the peripheral sits on. */
+stm32_clk stm32_clk_arch_clkof(void *periph);
+
+/* Given a peripheral base address, enables the clock to that peripheral. */
+void stm32_clk_arch_pclk_enable(void *periph);
+
+/* Given a peripheral base address, disables the clock to that peripheral. */
+void stm32_clk_arch_pclk_disable(void *periph);
+
 
 #endif

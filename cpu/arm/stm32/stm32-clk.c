@@ -32,10 +32,18 @@
 
 #include "stm32-clk.h"
 
-stm32_clk stm32_clk_clkof(void *periph_base) {
-  return stm32_clk_arch_clkof(periph_base);
-}
-
 uint32_t stm32_clk_frequency(stm32_clk clk) {
   return clk.freq();
+}
+
+stm32_clk stm32_clk_clkof(void *periph) {
+  return stm32_clk_arch_clkof(periph);
+}
+
+void stm32_clk_pclk_enable(void *periph) {
+  stm32_clk_arch_pclk_enable(periph);
+}
+
+void stm32_clk_pclk_disable(void *periph) {
+  stm32_clk_arch_pclk_enable(periph);
 }
