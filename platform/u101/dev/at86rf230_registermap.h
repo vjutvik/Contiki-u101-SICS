@@ -170,6 +170,20 @@
 #define SR_CCA_CS_THRES              0x09, 0xf0, 4
 /** Access parameters for sub-register CCA_ED_THRES in register @ref RG_CCA_THRES */
 #define SR_CCA_ED_THRES              0x09, 0x0f, 0
+/** Offset for register RX_CTRL */
+#define RG_CTRL                          (0x0a)
+/** Access parameters for sub-register PDT_THRES in register @ref RX_CTRL */
+#define SR_PDT_THRES                 0x0a, 0x0f, 0
+/** Offset for register ANT_DIV */
+#define RG_ANT_DIV                       (0x0d)
+/** Access parameters for sub-register ANT_DIV in register @ref RG_ANT_DIV */
+#define SR_ANT_CTRL                  0x0d, 0x03, 0
+/** Access parameters for sub-register ANT_EXT_SW_EN in register @ref RG_ANT_DIV */
+#define ANT_EXT_SW_EN                0x0d, 0x04, 2
+/** Access parameters for sub-register ANT_DIV_EN in register @ref RG_ANT_DIV */
+#define ANT_DIV_EN                   0x0d, 0x08, 3
+/** Access parameters for sub-register ANT_SEL in register @ref RG_ANT_DIV */
+#define ANT_SEL                      0x0d, 0x80, 7
 /** Offset for register IRQ_MASK */
 #define RG_IRQ_MASK                      (0x0e)
 /** Access parameters for sub-register IRQ_MASK in register @ref RG_IRQ_MASK */
@@ -345,9 +359,7 @@
 #define RG_CSMA_BE                      0x2f
 /** Access parameters for sub-register MIN_BE in register @ref RG_CSMA_SEED_1 */
 #define SR_MIN_BE                    0x2e, 0xc0, 6
-/** Access parameters for AACK_SET_PD bit in register @ref RG_CSMA_SEED_1 */
-#define SR_AACK_SET_PD               0x2e, 0x20, 5
-//#define SR_reserved_2e_2             0x2e, 0x30, 4
+#define SR_reserved_2e_2             0x2e, 0x30, 4
 /** Access parameters for sub-register I_AM_COORD in register @ref RG_CSMA_SEED_1 */
 #define SR_I_AM_COORD                0x2e, 0x08, 3
 /** Access parameters for sub-register CSMA_SEED_1 in register @ref RG_CSMA_SEED_1 */
