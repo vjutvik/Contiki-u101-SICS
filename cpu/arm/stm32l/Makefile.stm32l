@@ -172,6 +172,9 @@ empty-symbols.c:
 %.reset:
 	$(OPENOCD) -s $(OPENOCD_DIR) -f $(OPENOCD_CFG) -f target/stm32l.cfg -c init -c "reset; shutdown"
 
+%.halt:
+	$(OPENOCD) -s $(OPENOCD_DIR) -f $(OPENOCD_CFG) -f target/stm32l.cfg -c init -c "halt; shutdown"
+
 # Don't use core/loader/elfloader.c, use elfloader-otf.c instead
 $(OBJECTDIR)/elfloader.o: 
 	echo -n >$@
