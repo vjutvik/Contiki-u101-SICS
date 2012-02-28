@@ -316,6 +316,10 @@ static void stm32l_switch_pclk(void *periph, int enable)
   case GPIOH_BASE:
     reg = &(RCC->AHBENR);   bit = RCC_AHBENR_GPIOHEN;    break;
 
+  case SPI1_BASE:
+    reg = &(RCC->APB2ENR);  bit = RCC_APB2ENR_SPI1EN;    break;
+
+
   default:
     /* No such peripheral */
     break;
