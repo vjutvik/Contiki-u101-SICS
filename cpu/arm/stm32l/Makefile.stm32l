@@ -167,7 +167,7 @@ empty-symbols.c:
 	-f $(OPENOCD_CFG) \
 	-f stm32l.cfg \
 	-c init \
-	-c "soft_reset_halt; sleep 50; flash probe 0; flash erase_sector 0 0 31; sleep 50; flash write_bank 0 $< 0; reset; shutdown"
+	-c "soft_reset_halt; sleep 50; flash probe 0; flash erase_sector 0 0 31; sleep 50; flash write_bank 0 $< 0; sleep 100; reset; shutdown"
 
 %.reset:
 	$(OPENOCD) -s $(OPENOCD_DIR) -f $(OPENOCD_CFG) -f target/stm32l.cfg -c init -c "reset; shutdown"
