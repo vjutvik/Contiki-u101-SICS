@@ -335,14 +335,9 @@ int hse_setup(void)
   while((PWR->CSR & PWR_CSR_VOSF) != 0)
     ;
   
-  /* HCLK = SYSCLK /1 */
   RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;
-  
-  /* PCLK1 = HCLK /1*/
   RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV2;
-  
-  /* PCLK2 = HCLK /1*/
-  RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV8;
+  RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV2;
   
   res = pll_start();
   if (0 != res) {
