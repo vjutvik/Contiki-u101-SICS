@@ -1,0 +1,2 @@
+
+$(error This is not an actual platform. Please use one of u101-xxx instead)
