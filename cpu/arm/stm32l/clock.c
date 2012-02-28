@@ -55,6 +55,8 @@ SysTick_handler(void) __attribute__ ((interrupt));
 void
 SysTick_handler(void)
 {
+  clock_tick();
+
   /* We might change the ABHCLK during runtime */
   SysTick->LOAD = stm32_clk_frequency(ahb_clk)/8/CLOCK_SECOND;
   (void)SysTick->CTRL;
@@ -79,8 +81,7 @@ void clock_init()
   uint32_t load;
   load = (stm32_clk_frequency(ahb_clk)/8)/CLOCK_SECOND;
 
-  printf("AHBCLK is %ld MHz, CLOCK_SECOND is %d, SysTick LOAD is %ld\n", 
-         stm32_clk_frequency(ahb_clk), CLOCK_SECOND, load);
+  printf("CLOCK_SECOND is %d, SysTick LOAD is %ld\n", CLOCK_SECOND, load);
 
   NVIC_SET_SYSTICK_PRI(8);
   SysTick->LOAD = load;
