@@ -72,8 +72,8 @@ __exidx_end = .;
    _end = .;
   PROVIDE (end = .);
 
-Main_Stack_Size = 0x00000200;
-Process_Stack_Size = 0x00000200;
+Main_Stack_Size = 0x00000100;
+Process_Stack_Size = 0x00000100;
 
 Stack_Size = Main_Stack_Size + Process_Stack_Size;
   .stack ORIGIN(DATA) + LENGTH(DATA) - Stack_Size : 
