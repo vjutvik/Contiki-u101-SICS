@@ -381,40 +381,6 @@ typedef struct
   vu32 SR;
 } IWDG_TypeDef;
 
-/*------------------------ Nested Vectored Interrupt Controller --------------*/
-typedef struct
-{
-  vu32 ISER[2];
-  u32  RESERVED0[30];
-  vu32 ICER[2];
-  u32  RSERVED1[30];
-  vu32 ISPR[2];
-  u32  RESERVED2[30];
-  vu32 ICPR[2];
-  u32  RESERVED3[30];
-  vu32 IABR[2];
-  u32  RESERVED4[62];
-  vu32 IPR[15];
-} NVIC_TypeDef;
-
-typedef struct
-{
-  vuc32 CPUID;
-  vu32 ICSR;
-  vu32 VTOR;
-  vu32 AIRCR;
-  vu32 SCR;
-  vu32 CCR;
-  vu32 SHPR[3];
-  vu32 SHCSR;
-  vu32 CFSR;
-  vu32 HFSR;
-  vu32 DFSR;
-  vu32 MMFAR;
-  vu32 BFAR;
-  vu32 AFSR;
-} SCB_TypeDef;
-
 /*------------------------ Power Control -------------------------------------*/
 typedef struct
 {
@@ -486,38 +452,6 @@ typedef struct
   u32  RESERVED1[13];
   vu32 FIFO;
 } SDIO_TypeDef;
-
-/*------------------------ Serial Peripheral Interface -----------------------*/
-typedef struct
-{
-  vu16 CR1;
-  u16  RESERVED0;
-  vu16 CR2;
-  u16  RESERVED1;
-  vu16 SR;
-  u16  RESERVED2;
-  vu16 DR;
-  u16  RESERVED3;
-  vu16 CRCPR;
-  u16  RESERVED4;
-  vu16 RXCRCR;
-  u16  RESERVED5;
-  vu16 TXCRCR;
-  u16  RESERVED6;
-  vu16 I2SCFGR;
-  u16  RESERVED7;
-  vu16 I2SPR;
-  u16  RESERVED8;  
-} SPI_TypeDef;
-
-/*------------------------ SystemTick ----------------------------------------*/
-typedef struct
-{
-  vu32 CTRL;
-  vu32 LOAD;
-  vu32 VAL;
-  vuc32 CALIB;
-} SysTick_TypeDef;
 
 /*------------------------ TIM -----------------------------------------------*/
 typedef struct
@@ -664,13 +598,6 @@ typedef struct
 /* Debug MCU registers base address */
 #define DBGMCU_BASE          ((u32)0xE0042000)
 
-/* System Control Space memory map */
-#define SCS_BASE              ((u32)0xE000E000)
-
-#define SysTick_BASE          (SCS_BASE + 0x0010)
-#define NVIC_BASE             (SCS_BASE + 0x0100)
-#define SCB_BASE              (SCS_BASE + 0x0D00)
-
 /******************************************************************************/
 /*                         Peripheral declaration                             */
 /******************************************************************************/
@@ -681,6 +608,7 @@ typedef struct
 #define USART3                ((STM32_USART *)(USART3_BASE))
 #define UART4                 ((STM32_USART *)(UART4_BASE))
 #define UART5                 ((STM32_USART *)(UART5_BASE))
+#define SPI1                  ((STM32_SPI *)(SPI1_BASE))
 
 #ifndef DEBUG
 #ifdef _TIM2
@@ -718,14 +646,6 @@ typedef struct
 #ifdef _IWDG
   #define IWDG                ((IWDG_TypeDef *) IWDG_BASE)
 #endif /*_IWDG */
-
-#ifdef _SPI2
-  #define SPI2                ((SPI_TypeDef *) SPI2_BASE)
-#endif /*_SPI2 */
-
-#ifdef _SPI3
-  #define SPI3                ((SPI_TypeDef *) SPI3_BASE)
-#endif /*_SPI3 */
 
 #ifdef _I2C1
   #define I2C1                ((I2C_TypeDef *) I2C1_BASE)
@@ -798,10 +718,6 @@ typedef struct
 #ifdef _TIM1
   #define TIM1                ((TIM_TypeDef *) TIM1_BASE)
 #endif /*_TIM1 */
-
-#ifdef _SPI1
-  #define SPI1                ((SPI_TypeDef *) SPI1_BASE)
-#endif /*_SPI1 */
 
 #ifdef _TIM8
   #define TIM8                ((TIM_TypeDef *) TIM8_BASE)
@@ -892,15 +808,6 @@ typedef struct
 #ifdef _DBGMCU
   #define DBGMCU              ((DBGMCU_TypeDef *) DBGMCU_BASE)
 #endif /*_DBGMCU */
-
-#ifdef _SysTick
-  #define SysTick             ((SysTick_TypeDef *) SysTick_BASE)
-#endif /*_SysTick */
-
-#ifdef _NVIC
-  #define NVIC                ((NVIC_TypeDef *) NVIC_BASE)
-  #define SCB                 ((SCB_TypeDef *) SCB_BASE)  
-#endif /*_NVIC */
 
 /*------------------------ Debug Mode ----------------------------------------*/
 #else   /* DEBUG */
@@ -1133,15 +1040,6 @@ typedef struct
 #ifdef _DBGMCU
   EXT DBGMCU_TypeDef          *DBGMCU;
 #endif /*_DBGMCU */
-
-#ifdef _SysTick
-  EXT SysTick_TypeDef         *SysTick;
-#endif /*_SysTick */
-
-#ifdef _NVIC
-  EXT NVIC_TypeDef            *NVIC;
-  EXT SCB_TypeDef             *SCB;
-#endif /*_NVIC */
 
 #endif  /* DEBUG */
 
@@ -2220,418 +2118,6 @@ typedef struct
 #define AFIO_EXTICR4_EXTI15_PE               ((u16)0x4000)            /* PE[15] pin */
 #define AFIO_EXTICR4_EXTI15_PF               ((u16)0x5000)            /* PF[15] pin */
 #define AFIO_EXTICR4_EXTI15_PG               ((u16)0x6000)            /* PG[15] pin */
-
-
-
-/******************************************************************************/
-/*                                                                            */
-/*                               SystemTick                                   */
-/*                                                                            */
-/******************************************************************************/
-
-/*****************  Bit definition for SysTick_CTRL register  *****************/
-#define  SysTick_CTRL_ENABLE                 ((u32)0x00000001)        /* Counter enable */
-#define  SysTick_CTRL_TICKINT                ((u32)0x00000002)        /* Counting down to 0 pends the SysTick handler */
-#define  SysTick_CTRL_CLKSOURCE              ((u32)0x00000004)        /* Clock source */
-#define  SysTick_CTRL_COUNTFLAG              ((u32)0x00010000)        /* Count Flag */
-
-
-/*****************  Bit definition for SysTick_LOAD register  *****************/
-#define  SysTick_LOAD_RELOAD                 ((u32)0x00FFFFFF)        /* Value to load into the SysTick Current Value Register when the counter reaches 0 */
-
-
-/*****************  Bit definition for SysTick_VAL register  ******************/
-#define  SysTick_VAL_CURRENT                 ((u32)0x00FFFFFF)        /* Current value at the time the register is accessed */
-
-
-/*****************  Bit definition for SysTick_CALIB register  ****************/
-#define  SysTick_CALIB_TENMS                 ((u32)0x00FFFFFF)        /* Reload value to use for 10ms timing */
-#define  SysTick_CALIB_SKEW                  ((u32)0x40000000)        /* Calibration value is not exactly 10 ms */
-#define  SysTick_CALIB_NOREF                 ((u32)0x80000000)        /* The reference clock is not provided */
-
-
-
-/******************************************************************************/
-/*                                                                            */
-/*                  Nested Vectored Interrupt Controller                      */
-/*                                                                            */
-/******************************************************************************/
-
-/******************  Bit definition for NVIC_ISER register  *******************/
-#define  NVIC_ISER_SETENA                    ((u32)0xFFFFFFFF)        /* Interrupt set enable bits */
-#define  NVIC_ISER_SETENA_0                  ((u32)0x00000001)        /* bit 0 */
-#define  NVIC_ISER_SETENA_1                  ((u32)0x00000002)        /* bit 1 */
-#define  NVIC_ISER_SETENA_2                  ((u32)0x00000004)        /* bit 2 */
-#define  NVIC_ISER_SETENA_3                  ((u32)0x00000008)        /* bit 3 */
-#define  NVIC_ISER_SETENA_4                  ((u32)0x00000010)        /* bit 4 */
-#define  NVIC_ISER_SETENA_5                  ((u32)0x00000020)        /* bit 5 */
-#define  NVIC_ISER_SETENA_6                  ((u32)0x00000040)        /* bit 6 */
-#define  NVIC_ISER_SETENA_7                  ((u32)0x00000080)        /* bit 7 */
-#define  NVIC_ISER_SETENA_8                  ((u32)0x00000100)        /* bit 8 */
-#define  NVIC_ISER_SETENA_9                  ((u32)0x00000200)        /* bit 9 */
-#define  NVIC_ISER_SETENA_10                 ((u32)0x00000400)        /* bit 10 */
-#define  NVIC_ISER_SETENA_11                 ((u32)0x00000800)        /* bit 11 */
-#define  NVIC_ISER_SETENA_12                 ((u32)0x00001000)        /* bit 12 */
-#define  NVIC_ISER_SETENA_13                 ((u32)0x00002000)        /* bit 13 */
-#define  NVIC_ISER_SETENA_14                 ((u32)0x00004000)        /* bit 14 */
-#define  NVIC_ISER_SETENA_15                 ((u32)0x00008000)        /* bit 15 */
-#define  NVIC_ISER_SETENA_16                 ((u32)0x00010000)        /* bit 16 */
-#define  NVIC_ISER_SETENA_17                 ((u32)0x00020000)        /* bit 17 */
-#define  NVIC_ISER_SETENA_18                 ((u32)0x00040000)        /* bit 18 */
-#define  NVIC_ISER_SETENA_19                 ((u32)0x00080000)        /* bit 19 */
-#define  NVIC_ISER_SETENA_20                 ((u32)0x00100000)        /* bit 20 */
-#define  NVIC_ISER_SETENA_21                 ((u32)0x00200000)        /* bit 21 */
-#define  NVIC_ISER_SETENA_22                 ((u32)0x00400000)        /* bit 22 */
-#define  NVIC_ISER_SETENA_23                 ((u32)0x00800000)        /* bit 23 */
-#define  NVIC_ISER_SETENA_24                 ((u32)0x01000000)        /* bit 24 */
-#define  NVIC_ISER_SETENA_25                 ((u32)0x02000000)        /* bit 25 */
-#define  NVIC_ISER_SETENA_26                 ((u32)0x04000000)        /* bit 26 */
-#define  NVIC_ISER_SETENA_27                 ((u32)0x08000000)        /* bit 27 */
-#define  NVIC_ISER_SETENA_28                 ((u32)0x10000000)        /* bit 28 */
-#define  NVIC_ISER_SETENA_29                 ((u32)0x20000000)        /* bit 29 */
-#define  NVIC_ISER_SETENA_30                 ((u32)0x40000000)        /* bit 30 */
-#define  NVIC_ISER_SETENA_31                 ((u32)0x80000000)        /* bit 31 */
-
-
-
-/******************  Bit definition for NVIC_ICER register  *******************/
-#define  NVIC_ICER_CLRENA                   ((u32)0xFFFFFFFF)        /* Interrupt clear-enable bits */
-#define  NVIC_ICER_CLRENA_0                  ((u32)0x00000001)        /* bit 0 */
-#define  NVIC_ICER_CLRENA_1                  ((u32)0x00000002)        /* bit 1 */
-#define  NVIC_ICER_CLRENA_2                  ((u32)0x00000004)        /* bit 2 */
-#define  NVIC_ICER_CLRENA_3                  ((u32)0x00000008)        /* bit 3 */
-#define  NVIC_ICER_CLRENA_4                  ((u32)0x00000010)        /* bit 4 */
-#define  NVIC_ICER_CLRENA_5                  ((u32)0x00000020)        /* bit 5 */
-#define  NVIC_ICER_CLRENA_6                  ((u32)0x00000040)        /* bit 6 */
-#define  NVIC_ICER_CLRENA_7                  ((u32)0x00000080)        /* bit 7 */
-#define  NVIC_ICER_CLRENA_8                  ((u32)0x00000100)        /* bit 8 */
-#define  NVIC_ICER_CLRENA_9                  ((u32)0x00000200)        /* bit 9 */
-#define  NVIC_ICER_CLRENA_10                 ((u32)0x00000400)        /* bit 10 */
-#define  NVIC_ICER_CLRENA_11                 ((u32)0x00000800)        /* bit 11 */
-#define  NVIC_ICER_CLRENA_12                 ((u32)0x00001000)        /* bit 12 */
-#define  NVIC_ICER_CLRENA_13                 ((u32)0x00002000)        /* bit 13 */
-#define  NVIC_ICER_CLRENA_14                 ((u32)0x00004000)        /* bit 14 */
-#define  NVIC_ICER_CLRENA_15                 ((u32)0x00008000)        /* bit 15 */
-#define  NVIC_ICER_CLRENA_16                 ((u32)0x00010000)        /* bit 16 */
-#define  NVIC_ICER_CLRENA_17                 ((u32)0x00020000)        /* bit 17 */
-#define  NVIC_ICER_CLRENA_18                 ((u32)0x00040000)        /* bit 18 */
-#define  NVIC_ICER_CLRENA_19                 ((u32)0x00080000)        /* bit 19 */
-#define  NVIC_ICER_CLRENA_20                 ((u32)0x00100000)        /* bit 20 */
-#define  NVIC_ICER_CLRENA_21                 ((u32)0x00200000)        /* bit 21 */
-#define  NVIC_ICER_CLRENA_22                 ((u32)0x00400000)        /* bit 22 */
-#define  NVIC_ICER_CLRENA_23                 ((u32)0x00800000)        /* bit 23 */
-#define  NVIC_ICER_CLRENA_24                 ((u32)0x01000000)        /* bit 24 */
-#define  NVIC_ICER_CLRENA_25                 ((u32)0x02000000)        /* bit 25 */
-#define  NVIC_ICER_CLRENA_26                 ((u32)0x04000000)        /* bit 26 */
-#define  NVIC_ICER_CLRENA_27                 ((u32)0x08000000)        /* bit 27 */
-#define  NVIC_ICER_CLRENA_28                 ((u32)0x10000000)        /* bit 28 */
-#define  NVIC_ICER_CLRENA_29                 ((u32)0x20000000)        /* bit 29 */
-#define  NVIC_ICER_CLRENA_30                 ((u32)0x40000000)        /* bit 30 */
-#define  NVIC_ICER_CLRENA_31                 ((u32)0x80000000)        /* bit 31 */
-
-
-/******************  Bit definition for NVIC_ISPR register  *******************/
-#define  NVIC_ISPR_SETPEND                   ((u32)0xFFFFFFFF)        /* Interrupt set-pending bits */
-#define  NVIC_ISPR_SETPEND_0                 ((u32)0x00000001)        /* bit 0 */
-#define  NVIC_ISPR_SETPEND_1                 ((u32)0x00000002)        /* bit 1 */
-#define  NVIC_ISPR_SETPEND_2                 ((u32)0x00000004)        /* bit 2 */
-#define  NVIC_ISPR_SETPEND_3                 ((u32)0x00000008)        /* bit 3 */
-#define  NVIC_ISPR_SETPEND_4                 ((u32)0x00000010)        /* bit 4 */
-#define  NVIC_ISPR_SETPEND_5                 ((u32)0x00000020)        /* bit 5 */
-#define  NVIC_ISPR_SETPEND_6                 ((u32)0x00000040)        /* bit 6 */
-#define  NVIC_ISPR_SETPEND_7                 ((u32)0x00000080)        /* bit 7 */
-#define  NVIC_ISPR_SETPEND_8                 ((u32)0x00000100)        /* bit 8 */
-#define  NVIC_ISPR_SETPEND_9                 ((u32)0x00000200)        /* bit 9 */
-#define  NVIC_ISPR_SETPEND_10                ((u32)0x00000400)        /* bit 10 */
-#define  NVIC_ISPR_SETPEND_11                ((u32)0x00000800)        /* bit 11 */
-#define  NVIC_ISPR_SETPEND_12                ((u32)0x00001000)        /* bit 12 */
-#define  NVIC_ISPR_SETPEND_13                ((u32)0x00002000)        /* bit 13 */
-#define  NVIC_ISPR_SETPEND_14                ((u32)0x00004000)        /* bit 14 */
-#define  NVIC_ISPR_SETPEND_15                ((u32)0x00008000)        /* bit 15 */
-#define  NVIC_ISPR_SETPEND_16                ((u32)0x00010000)        /* bit 16 */
-#define  NVIC_ISPR_SETPEND_17                ((u32)0x00020000)        /* bit 17 */
-#define  NVIC_ISPR_SETPEND_18                ((u32)0x00040000)        /* bit 18 */
-#define  NVIC_ISPR_SETPEND_19                ((u32)0x00080000)        /* bit 19 */
-#define  NVIC_ISPR_SETPEND_20                ((u32)0x00100000)        /* bit 20 */
-#define  NVIC_ISPR_SETPEND_21                ((u32)0x00200000)        /* bit 21 */
-#define  NVIC_ISPR_SETPEND_22                ((u32)0x00400000)        /* bit 22 */
-#define  NVIC_ISPR_SETPEND_23                ((u32)0x00800000)        /* bit 23 */
-#define  NVIC_ISPR_SETPEND_24                ((u32)0x01000000)        /* bit 24 */
-#define  NVIC_ISPR_SETPEND_25                ((u32)0x02000000)        /* bit 25 */
-#define  NVIC_ISPR_SETPEND_26                ((u32)0x04000000)        /* bit 26 */
-#define  NVIC_ISPR_SETPEND_27                ((u32)0x08000000)        /* bit 27 */
-#define  NVIC_ISPR_SETPEND_28                ((u32)0x10000000)        /* bit 28 */
-#define  NVIC_ISPR_SETPEND_29                ((u32)0x20000000)        /* bit 29 */
-#define  NVIC_ISPR_SETPEND_30                ((u32)0x40000000)        /* bit 30 */
-#define  NVIC_ISPR_SETPEND_31                ((u32)0x80000000)        /* bit 31 */
-
-
-/******************  Bit definition for NVIC_ICPR register  *******************/
-#define  NVIC_ICPR_CLRPEND                   ((u32)0xFFFFFFFF)        /* Interrupt clear-pending bits */
-#define  NVIC_ICPR_CLRPEND_0                 ((u32)0x00000001)        /* bit 0 */
-#define  NVIC_ICPR_CLRPEND_1                 ((u32)0x00000002)        /* bit 1 */
-#define  NVIC_ICPR_CLRPEND_2                 ((u32)0x00000004)        /* bit 2 */
-#define  NVIC_ICPR_CLRPEND_3                 ((u32)0x00000008)        /* bit 3 */
-#define  NVIC_ICPR_CLRPEND_4                 ((u32)0x00000010)        /* bit 4 */
-#define  NVIC_ICPR_CLRPEND_5                 ((u32)0x00000020)        /* bit 5 */
-#define  NVIC_ICPR_CLRPEND_6                 ((u32)0x00000040)        /* bit 6 */
-#define  NVIC_ICPR_CLRPEND_7                 ((u32)0x00000080)        /* bit 7 */
-#define  NVIC_ICPR_CLRPEND_8                 ((u32)0x00000100)        /* bit 8 */
-#define  NVIC_ICPR_CLRPEND_9                 ((u32)0x00000200)        /* bit 9 */
-#define  NVIC_ICPR_CLRPEND_10                ((u32)0x00000400)        /* bit 10 */
-#define  NVIC_ICPR_CLRPEND_11                ((u32)0x00000800)        /* bit 11 */
-#define  NVIC_ICPR_CLRPEND_12                ((u32)0x00001000)        /* bit 12 */
-#define  NVIC_ICPR_CLRPEND_13                ((u32)0x00002000)        /* bit 13 */
-#define  NVIC_ICPR_CLRPEND_14                ((u32)0x00004000)        /* bit 14 */
-#define  NVIC_ICPR_CLRPEND_15                ((u32)0x00008000)        /* bit 15 */
-#define  NVIC_ICPR_CLRPEND_16                ((u32)0x00010000)        /* bit 16 */
-#define  NVIC_ICPR_CLRPEND_17                ((u32)0x00020000)        /* bit 17 */
-#define  NVIC_ICPR_CLRPEND_18                ((u32)0x00040000)        /* bit 18 */
-#define  NVIC_ICPR_CLRPEND_19                ((u32)0x00080000)        /* bit 19 */
-#define  NVIC_ICPR_CLRPEND_20                ((u32)0x00100000)        /* bit 20 */
-#define  NVIC_ICPR_CLRPEND_21                ((u32)0x00200000)        /* bit 21 */
-#define  NVIC_ICPR_CLRPEND_22                ((u32)0x00400000)        /* bit 22 */
-#define  NVIC_ICPR_CLRPEND_23                ((u32)0x00800000)        /* bit 23 */
-#define  NVIC_ICPR_CLRPEND_24                ((u32)0x01000000)        /* bit 24 */
-#define  NVIC_ICPR_CLRPEND_25                ((u32)0x02000000)        /* bit 25 */
-#define  NVIC_ICPR_CLRPEND_26                ((u32)0x04000000)        /* bit 26 */
-#define  NVIC_ICPR_CLRPEND_27                ((u32)0x08000000)        /* bit 27 */
-#define  NVIC_ICPR_CLRPEND_28                ((u32)0x10000000)        /* bit 28 */
-#define  NVIC_ICPR_CLRPEND_29                ((u32)0x20000000)        /* bit 29 */
-#define  NVIC_ICPR_CLRPEND_30                ((u32)0x40000000)        /* bit 30 */
-#define  NVIC_ICPR_CLRPEND_31                ((u32)0x80000000)        /* bit 31 */
-
-
-/******************  Bit definition for NVIC_IABR register  *******************/
-#define  NVIC_IABR_ACTIVE                    ((u32)0xFFFFFFFF)        /* Interrupt active flags */
-#define  NVIC_IABR_ACTIVE_0                  ((u32)0x00000001)        /* bit 0 */
-#define  NVIC_IABR_ACTIVE_1                  ((u32)0x00000002)        /* bit 1 */
-#define  NVIC_IABR_ACTIVE_2                  ((u32)0x00000004)        /* bit 2 */
-#define  NVIC_IABR_ACTIVE_3                  ((u32)0x00000008)        /* bit 3 */
-#define  NVIC_IABR_ACTIVE_4                  ((u32)0x00000010)        /* bit 4 */
-#define  NVIC_IABR_ACTIVE_5                  ((u32)0x00000020)        /* bit 5 */
-#define  NVIC_IABR_ACTIVE_6                  ((u32)0x00000040)        /* bit 6 */
-#define  NVIC_IABR_ACTIVE_7                  ((u32)0x00000080)        /* bit 7 */
-#define  NVIC_IABR_ACTIVE_8                  ((u32)0x00000100)        /* bit 8 */
-#define  NVIC_IABR_ACTIVE_9                  ((u32)0x00000200)        /* bit 9 */
-#define  NVIC_IABR_ACTIVE_10                 ((u32)0x00000400)        /* bit 10 */
-#define  NVIC_IABR_ACTIVE_11                 ((u32)0x00000800)        /* bit 11 */
-#define  NVIC_IABR_ACTIVE_12                 ((u32)0x00001000)        /* bit 12 */
-#define  NVIC_IABR_ACTIVE_13                 ((u32)0x00002000)        /* bit 13 */
-#define  NVIC_IABR_ACTIVE_14                 ((u32)0x00004000)        /* bit 14 */
-#define  NVIC_IABR_ACTIVE_15                 ((u32)0x00008000)        /* bit 15 */
-#define  NVIC_IABR_ACTIVE_16                 ((u32)0x00010000)        /* bit 16 */
-#define  NVIC_IABR_ACTIVE_17                 ((u32)0x00020000)        /* bit 17 */
-#define  NVIC_IABR_ACTIVE_18                 ((u32)0x00040000)        /* bit 18 */
-#define  NVIC_IABR_ACTIVE_19                 ((u32)0x00080000)        /* bit 19 */
-#define  NVIC_IABR_ACTIVE_20                 ((u32)0x00100000)        /* bit 20 */
-#define  NVIC_IABR_ACTIVE_21                 ((u32)0x00200000)        /* bit 21 */
-#define  NVIC_IABR_ACTIVE_22                 ((u32)0x00400000)        /* bit 22 */
-#define  NVIC_IABR_ACTIVE_23                 ((u32)0x00800000)        /* bit 23 */
-#define  NVIC_IABR_ACTIVE_24                 ((u32)0x01000000)        /* bit 24 */
-#define  NVIC_IABR_ACTIVE_25                 ((u32)0x02000000)        /* bit 25 */
-#define  NVIC_IABR_ACTIVE_26                 ((u32)0x04000000)        /* bit 26 */
-#define  NVIC_IABR_ACTIVE_27                 ((u32)0x08000000)        /* bit 27 */
-#define  NVIC_IABR_ACTIVE_28                 ((u32)0x10000000)        /* bit 28 */
-#define  NVIC_IABR_ACTIVE_29                 ((u32)0x20000000)        /* bit 29 */
-#define  NVIC_IABR_ACTIVE_30                 ((u32)0x40000000)        /* bit 30 */
-#define  NVIC_IABR_ACTIVE_31                 ((u32)0x80000000)        /* bit 31 */
-
-
-/******************  Bit definition for NVIC_PRI0 register  *******************/
-#define  NVIC_IPR0_PRI_0                     ((u32)0x000000FF)        /* Priority of interrupt 0 */
-#define  NVIC_IPR0_PRI_1                     ((u32)0x0000FF00)        /* Priority of interrupt 1 */
-#define  NVIC_IPR0_PRI_2                     ((u32)0x00FF0000)        /* Priority of interrupt 2 */
-#define  NVIC_IPR0_PRI_3                     ((u32)0xFF000000)        /* Priority of interrupt 3 */
-
-
-/******************  Bit definition for NVIC_PRI1 register  *******************/
-#define  NVIC_IPR1_PRI_4                     ((u32)0x000000FF)        /* Priority of interrupt 4 */
-#define  NVIC_IPR1_PRI_5                     ((u32)0x0000FF00)        /* Priority of interrupt 5 */
-#define  NVIC_IPR1_PRI_6                     ((u32)0x00FF0000)        /* Priority of interrupt 6 */
-#define  NVIC_IPR1_PRI_7                     ((u32)0xFF000000)        /* Priority of interrupt 7 */
-
-
-/******************  Bit definition for NVIC_PRI2 register  *******************/
-#define  NVIC_IPR2_PRI_8                     ((u32)0x000000FF)        /* Priority of interrupt 8 */
-#define  NVIC_IPR2_PRI_9                     ((u32)0x0000FF00)        /* Priority of interrupt 9 */
-#define  NVIC_IPR2_PRI_10                    ((u32)0x00FF0000)        /* Priority of interrupt 10 */
-#define  NVIC_IPR2_PRI_11                    ((u32)0xFF000000)        /* Priority of interrupt 11 */
-
-
-/******************  Bit definition for NVIC_PRI3 register  *******************/
-#define  NVIC_IPR3_PRI_12                    ((u32)0x000000FF)        /* Priority of interrupt 12 */
-#define  NVIC_IPR3_PRI_13                    ((u32)0x0000FF00)        /* Priority of interrupt 13 */
-#define  NVIC_IPR3_PRI_14                    ((u32)0x00FF0000)        /* Priority of interrupt 14 */
-#define  NVIC_IPR3_PRI_15                    ((u32)0xFF000000)        /* Priority of interrupt 15 */
-
-
-/******************  Bit definition for NVIC_PRI4 register  *******************/
-#define  NVIC_IPR4_PRI_16                    ((u32)0x000000FF)        /* Priority of interrupt 16 */
-#define  NVIC_IPR4_PRI_17                    ((u32)0x0000FF00)        /* Priority of interrupt 17 */
-#define  NVIC_IPR4_PRI_18                    ((u32)0x00FF0000)        /* Priority of interrupt 18 */
-#define  NVIC_IPR4_PRI_19                    ((u32)0xFF000000)        /* Priority of interrupt 19 */
-
-
-/******************  Bit definition for NVIC_PRI5 register  *******************/
-#define  NVIC_IPR5_PRI_20                    ((u32)0x000000FF)        /* Priority of interrupt 20 */
-#define  NVIC_IPR5_PRI_21                    ((u32)0x0000FF00)        /* Priority of interrupt 21 */
-#define  NVIC_IPR5_PRI_22                    ((u32)0x00FF0000)        /* Priority of interrupt 22 */
-#define  NVIC_IPR5_PRI_23                    ((u32)0xFF000000)        /* Priority of interrupt 23 */
-
-
-/******************  Bit definition for NVIC_PRI6 register  *******************/
-#define  NVIC_IPR6_PRI_24                    ((u32)0x000000FF)        /* Priority of interrupt 24 */
-#define  NVIC_IPR6_PRI_25                    ((u32)0x0000FF00)        /* Priority of interrupt 25 */
-#define  NVIC_IPR6_PRI_26                    ((u32)0x00FF0000)        /* Priority of interrupt 26 */
-#define  NVIC_IPR6_PRI_27                    ((u32)0xFF000000)        /* Priority of interrupt 27 */
-
-
-/******************  Bit definition for NVIC_PRI7 register  *******************/
-#define  NVIC_IPR7_PRI_28                    ((u32)0x000000FF)        /* Priority of interrupt 28 */
-#define  NVIC_IPR7_PRI_29                    ((u32)0x0000FF00)        /* Priority of interrupt 29 */
-#define  NVIC_IPR7_PRI_30                    ((u32)0x00FF0000)        /* Priority of interrupt 30 */
-#define  NVIC_IPR7_PRI_31                    ((u32)0xFF000000)        /* Priority of interrupt 31 */
-
-
-/******************  Bit definition for SCB_CPUID register  *******************/
-#define  SCB_CPUID_REVISION                  ((u32)0x0000000F)        /* Implementation defined revision number */
-#define  SCB_CPUID_PARTNO                    ((u32)0x0000FFF0)        /* Number of processor within family */
-#define  SCB_CPUID_Constant                  ((u32)0x000F0000)        /* Reads as 0x0F */
-#define  SCB_CPUID_VARIANT                   ((u32)0x00F00000)        /* Implementation defined variant number */
-#define  SCB_CPUID_IMPLEMENTER               ((u32)0xFF000000)        /* Implementer code. ARM is 0x41 */
-
-
-/*******************  Bit definition for SCB_ICSR register  *******************/
-#define  SCB_ICSR_VECTACTIVE                 ((u32)0x000001FF)        /* Active ISR number field */
-#define  SCB_ICSR_RETTOBASE                  ((u32)0x00000800)        /* All active exceptions minus the IPSR_current_exception yields the empty set */
-#define  SCB_ICSR_VECTPENDING                ((u32)0x003FF000)        /* Pending ISR number field */
-#define  SCB_ICSR_ISRPENDING                 ((u32)0x00400000)        /* Interrupt pending flag */
-#define  SCB_ICSR_ISRPREEMPT                 ((u32)0x00800000)        /* It indicates that a pending interrupt becomes active in the next running cycle */
-#define  SCB_ICSR_PENDSTCLR                  ((u32)0x02000000)        /* Clear pending SysTick bit */
-#define  SCB_ICSR_PENDSTSET                  ((u32)0x04000000)        /* Set pending SysTick bit */
-#define  SCB_ICSR_PENDSVCLR                  ((u32)0x08000000)        /* Clear pending pendSV bit */
-#define  SCB_ICSR_PENDSVSET                  ((u32)0x10000000)        /* Set pending pendSV bit */
-#define  SCB_ICSR_NMIPENDSET                 ((u32)0x80000000)        /* Set pending NMI bit */
-
-
-/*******************  Bit definition for SCB_VTOR register  *******************/
-#define  SCB_VTOR_TBLOFF                     ((u32)0x1FFFFF80)        /* Vector table base offset field */
-#define  SCB_VTOR_TBLBASE                    ((u32)0x20000000)        /* Table base in code(0) or RAM(1) */
-
-
-/******************  Bit definition for SCB_AIRCR register  *******************/
-#define  SCB_AIRCR_VECTRESET                 ((u32)0x00000001)        /* System Reset bit */
-#define  SCB_AIRCR_VECTCLRACTIVE             ((u32)0x00000002)        /* Clear active vector bit */
-#define  SCB_AIRCR_SYSRESETREQ               ((u32)0x00000004)        /* Requests chip control logic to generate a reset */
-
-#define  SCB_AIRCR_PRIGROUP                  ((u32)0x00000700)        /* PRIGROUP[2:0] bits (Priority group) */
-#define  SCB_AIRCR_PRIGROUP_0                ((u32)0x00000100)        /* Bit 0 */
-#define  SCB_AIRCR_PRIGROUP_1                ((u32)0x00000200)        /* Bit 1 */
-#define  SCB_AIRCR_PRIGROUP_2                ((u32)0x00000400)        /* Bit 2  */
-
-/* prority group configuration */
-#define  SCB_AIRCR_PRIGROUP0                 ((u32)0x00000000)        /* Priority group=0 (7 bits of pre-emption priority, 1 bit of subpriority) */
-#define  SCB_AIRCR_PRIGROUP1                 ((u32)0x00000100)        /* Priority group=1 (6 bits of pre-emption priority, 2 bits of subpriority) */
-#define  SCB_AIRCR_PRIGROUP2                 ((u32)0x00000200)        /* Priority group=2 (5 bits of pre-emption priority, 3 bits of subpriority) */
-#define  SCB_AIRCR_PRIGROUP3                 ((u32)0x00000300)        /* Priority group=3 (4 bits of pre-emption priority, 4 bits of subpriority) */
-#define  SCB_AIRCR_PRIGROUP4                 ((u32)0x00000400)        /* Priority group=4 (3 bits of pre-emption priority, 5 bits of subpriority) */
-#define  SCB_AIRCR_PRIGROUP5                 ((u32)0x00000500)        /* Priority group=5 (2 bits of pre-emption priority, 6 bits of subpriority) */
-#define  SCB_AIRCR_PRIGROUP6                 ((u32)0x00000600)        /* Priority group=6 (1 bit of pre-emption priority, 7 bits of subpriority) */
-#define  SCB_AIRCR_PRIGROUP7                 ((u32)0x00000700)        /* Priority group=7 (no pre-emption priority, 8 bits of subpriority) */
-
-#define  SCB_AIRCR_ENDIANESS                 ((u32)0x00008000)        /* Data endianness bit */
-#define  SCB_AIRCR_VECTKEY                   ((u32)0xFFFF0000)        /* Register key (VECTKEY) - Reads as 0xFA05 (VECTKEYSTAT) */
-
-
-/*******************  Bit definition for SCB_SCR register  ********************/
-#define  SCB_SCR_SLEEPONEXIT                 ((u8)0x02)               /* Sleep on exit bit */
-#define  SCB_SCR_SLEEPDEEP                   ((u8)0x04)               /* Sleep deep bit */
-#define  SCB_SCR_SEVONPEND                   ((u8)0x10)               /* Wake up from WFE */
-
-
-/********************  Bit definition for SCB_CCR register  *******************/
-#define  SCB_CCR_NONBASETHRDENA              ((u16)0x0001)            /* Thread mode can be entered from any level in Handler mode by controlled return value */
-#define  SCB_CCR_USERSETMPEND                ((u16)0x0002)            /* Enables user code to write the Software Trigger Interrupt register to trigger (pend) a Main exception */
-#define  SCB_CCR_UNALIGN_TRP                 ((u16)0x0008)            /* Trap for unaligned access */
-#define  SCB_CCR_DIV_0_TRP                   ((u16)0x0010)            /* Trap on Divide by 0 */
-#define  SCB_CCR_BFHFNMIGN                   ((u16)0x0100)            /* Handlers running at priority -1 and -2 */
-#define  SCB_CCR_STKALIGN                    ((u16)0x0200)            /* On exception entry, the SP used prior to the exception is adjusted to be 8-byte aligned */
-
-
-/*******************  Bit definition for SCB_SHPR register ********************/
-#define  SCB_SHPR_PRI_N                      ((u32)0x000000FF)        /* Priority of system handler 4,8, and 12. Mem Manage, reserved and Debug Monitor */
-#define  SCB_SHPR_PRI_N1                     ((u32)0x0000FF00)        /* Priority of system handler 5,9, and 13. Bus Fault, reserved and reserved */
-#define  SCB_SHPR_PRI_N2                     ((u32)0x00FF0000)        /* Priority of system handler 6,10, and 14. Usage Fault, reserved and PendSV */
-#define  SCB_SHPR_PRI_N3                     ((u32)0xFF000000)        /* Priority of system handler 7,11, and 15. Reserved, SVCall and SysTick */
-
-
-/******************  Bit definition for SCB_SHCSR register  *******************/
-#define  SCB_SHCSR_MEMFAULTACT               ((u32)0x00000001)        /* MemManage is active */
-#define  SCB_SHCSR_BUSFAULTACT               ((u32)0x00000002)        /* BusFault is active */
-#define  SCB_SHCSR_USGFAULTACT               ((u32)0x00000008)        /* UsageFault is active */
-#define  SCB_SHCSR_SVCALLACT                 ((u32)0x00000080)        /* SVCall is active */
-#define  SCB_SHCSR_MONITORACT                ((u32)0x00000100)        /* Monitor is active */
-#define  SCB_SHCSR_PENDSVACT                 ((u32)0x00000400)        /* PendSV is active */
-#define  SCB_SHCSR_SYSTICKACT                ((u32)0x00000800)        /* SysTick is active */
-#define  SCB_SHCSR_USGFAULTPENDED            ((u32)0x00001000)        /* Usage Fault is pended */
-#define  SCB_SHCSR_MEMFAULTPENDED            ((u32)0x00002000)        /* MemManage is pended */
-#define  SCB_SHCSR_BUSFAULTPENDED            ((u32)0x00004000)        /* Bus Fault is pended */
-#define  SCB_SHCSR_SVCALLPENDED              ((u32)0x00008000)        /* SVCall is pended */
-#define  SCB_SHCSR_MEMFAULTENA               ((u32)0x00010000)        /* MemManage enable */
-#define  SCB_SHCSR_BUSFAULTENA               ((u32)0x00020000)        /* Bus Fault enable */
-#define  SCB_SHCSR_USGFAULTENA               ((u32)0x00040000)        /* UsageFault enable */
-
-
-/*******************  Bit definition for SCB_CFSR register  *******************/
-/* MFSR */
-#define  SCB_CFSR_IACCVIOL                   ((u32)0x00000001)        /* Instruction access violation */
-#define  SCB_CFSR_DACCVIOL                   ((u32)0x00000002)        /* Data access violation */
-#define  SCB_CFSR_MUNSTKERR                  ((u32)0x00000008)        /* Unstacking error */
-#define  SCB_CFSR_MSTKERR                    ((u32)0x00000010)        /* Stacking error */
-#define  SCB_CFSR_MMARVALID                  ((u32)0x00000080)        /* Memory Manage Address Register address valid flag */
-/* BFSR */
-#define  SCB_CFSR_IBUSERR                    ((u32)0x00000100)        /* Instruction bus error flag */
-#define  SCB_CFSR_PRECISERR                  ((u32)0x00000200)        /* Precise data bus error */
-#define  SCB_CFSR_IMPRECISERR                ((u32)0x00000400)        /* Imprecise data bus error */
-#define  SCB_CFSR_UNSTKERR                   ((u32)0x00000800)        /* Unstacking error */
-#define  SCB_CFSR_STKERR                     ((u32)0x00001000)        /* Stacking error */
-#define  SCB_CFSR_BFARVALID                  ((u32)0x00008000)        /* Bus Fault Address Register address valid flag */
-/* UFSR */
-#define  SCB_CFSR_UNDEFINSTR                 ((u32)0x00010000)        /* The processor attempt to excecute an undefined instruction */
-#define  SCB_CFSR_INVSTATE                   ((u32)0x00020000)        /* Invalid combination of EPSR and instruction */
-#define  SCB_CFSR_INVPC                      ((u32)0x00040000)        /* Attempt to load EXC_RETURN into pc illegally */
-#define  SCB_CFSR_NOCP                       ((u32)0x00080000)        /* Attempt to use a coprocessor instruction */
-#define  SCB_CFSR_UNALIGNED                  ((u32)0x01000000)        /* Fault occurs when there is an attempt to make an unaligned memory access */
-#define  SCB_CFSR_DIVBYZERO                  ((u32)0x02000000)        /* Fault occurs when SDIV or DIV instruction is used with a divisor of 0 */
-
-
-/*******************  Bit definition for SCB_HFSR register  *******************/
-#define  SCB_HFSR_VECTTBL                    ((u32)0x00000002)        /* Fault occures because of vector table read on exception processing */
-#define  SCB_HFSR_FORCED                     ((u32)0x40000000)        /* Hard Fault activated when a configurable Fault was received and cannot activate */
-#define  SCB_HFSR_DEBUGEVT                   ((u32)0x80000000)        /* Fault related to debug */
-
-
-/*******************  Bit definition for SCB_DFSR register  *******************/
-#define  SCB_DFSR_HALTED                     ((u8)0x01)               /* Halt request flag */
-#define  SCB_DFSR_BKPT                       ((u8)0x02)               /* BKPT flag */
-#define  SCB_DFSR_DWTTRAP                    ((u8)0x04)               /* Data Watchpoint and Trace (DWT) flag */
-#define  SCB_DFSR_VCATCH                     ((u8)0x08)               /* Vector catch flag */
-#define  SCB_DFSR_EXTERNAL                   ((u8)0x10)               /* External debug request flag */
-
-
-/*******************  Bit definition for SCB_MMFAR register  ******************/
-#define  SCB_MMFAR_ADDRESS                   ((u32)0xFFFFFFFF)        /* Mem Manage fault address field */
-
-
-/*******************  Bit definition for SCB_BFAR register  *******************/
-#define  SCB_BFAR_ADDRESS                    ((u32)0xFFFFFFFF)        /* Bus fault address field */
-
-
-/*******************  Bit definition for SCB_afsr register  *******************/
-#define  SCB_AFSR_IMPDEF                     ((u32)0xFFFFFFFF)        /* Implementation defined */
-
-
 
 /******************************************************************************/
 /*                                                                            */
@@ -7095,102 +6581,6 @@ typedef struct
 #define  CAN_F13R2_FB29                      ((u32)0x20000000)        /* Filter bit 29 */
 #define  CAN_F13R2_FB30                      ((u32)0x40000000)        /* Filter bit 30 */
 #define  CAN_F13R2_FB31                      ((u32)0x80000000)        /* Filter bit 31 */
-
-
-
-/******************************************************************************/
-/*                                                                            */
-/*                        Serial Peripheral Interface                         */
-/*                                                                            */
-/******************************************************************************/
-
-/*******************  Bit definition for SPI_CR1 register  ********************/
-#define  SPI_CR1_CPHA                        ((u16)0x0001)            /* Clock Phase */
-#define  SPI_CR1_CPOL                        ((u16)0x0002)            /* Clock Polarity */
-#define  SPI_CR1_MSTR                        ((u16)0x0004)            /* Master Selection */
-
-#define  SPI_CR1_BR                          ((u16)0x0038)            /* BR[2:0] bits (Baud Rate Control) */
-#define  SPI_CR1_BR_0                        ((u16)0x0008)            /* Bit 0 */
-#define  SPI_CR1_BR_1                        ((u16)0x0010)            /* Bit 1 */
-#define  SPI_CR1_BR_2                        ((u16)0x0020)            /* Bit 2 */
-
-#define  SPI_CR1_SPE                         ((u16)0x0040)            /* SPI Enable */
-#define  SPI_CR1_LSBFIRST                    ((u16)0x0080)            /* Frame Format */
-#define  SPI_CR1_SSI                         ((u16)0x0100)            /* Internal slave select */
-#define  SPI_CR1_SSM                         ((u16)0x0200)            /* Software slave management */
-#define  SPI_CR1_RXONLY                      ((u16)0x0400)            /* Receive only */
-#define  SPI_CR1_DFF                         ((u16)0x0800)            /* Data Frame Format */
-#define  SPI_CR1_CRCNEXT                     ((u16)0x1000)            /* Transmit CRC next */
-#define  SPI_CR1_CRCEN                       ((u16)0x2000)            /* Hardware CRC calculation enable */
-#define  SPI_CR1_BIDIOE                      ((u16)0x4000)            /* Output enable in bidirectional mode */
-#define  SPI_CR1_BIDIMODE                    ((u16)0x8000)            /* Bidirectional data mode enable */
-
-
-/*******************  Bit definition for SPI_CR2 register  ********************/
-#define  SPI_CR2_RXDMAEN                     ((u8)0x01)               /* Rx Buffer DMA Enable */
-#define  SPI_CR2_TXDMAEN                     ((u8)0x02)               /* Tx Buffer DMA Enable */
-#define  SPI_CR2_SSOE                        ((u8)0x04)               /* SS Output Enable */
-#define  SPI_CR2_ERRIE                       ((u8)0x20)               /* Error Interrupt Enable */
-#define  SPI_CR2_RXNEIE                      ((u8)0x40)               /* RX buffer Not Empty Interrupt Enable */
-#define  SPI_CR2_TXEIE                       ((u8)0x80)               /* Tx buffer Empty Interrupt Enable */
-
-
-/********************  Bit definition for SPI_SR register  ********************/
-#define  SPI_SR_RXNE                         ((u8)0x01)               /* Receive buffer Not Empty */
-#define  SPI_SR_TXE                          ((u8)0x02)               /* Transmit buffer Empty */
-#define  SPI_SR_CHSIDE                       ((u8)0x04)               /* Channel side */
-#define  SPI_SR_UDR                          ((u8)0x08)               /* Underrun flag */
-#define  SPI_SR_CRCERR                       ((u8)0x10)               /* CRC Error flag */
-#define  SPI_SR_MODF                         ((u8)0x20)               /* Mode fault */
-#define  SPI_SR_OVR                          ((u8)0x40)               /* Overrun flag */
-#define  SPI_SR_BSY                          ((u8)0x80)               /* Busy flag */
-
-
-/********************  Bit definition for SPI_DR register  ********************/
-#define  SPI_DR_DR                           ((u16)0xFFFF)            /* Data Register */
-
-
-/*******************  Bit definition for SPI_CRCPR register  ******************/
-#define  SPI_CRCPR_CRCPOLY                   ((u16)0xFFFF)            /* CRC polynomial register */
-
-
-/******************  Bit definition for SPI_RXCRCR register  ******************/
-#define  SPI_RXCRCR_RXCRC                    ((u16)0xFFFF)            /* Rx CRC Register */
-
-
-/******************  Bit definition for SPI_TXCRCR register  ******************/
-#define  SPI_TXCRCR_TXCRC                    ((u16)0xFFFF)            /* Tx CRC Register */
-
-
-/******************  Bit definition for SPI_I2SCFGR register  *****************/
-#define  SPI_I2SCFGR_CHLEN                   ((u16)0x0001)            /* Channel length (number of bits per audio channel) */
-
-#define  SPI_I2SCFGR_DATLEN                  ((u16)0x0006)            /* DATLEN[1:0] bits (Data length to be transferred) */
-#define  SPI_I2SCFGR_DATLEN_0                ((u16)0x0002)            /* Bit 0 */
-#define  SPI_I2SCFGR_DATLEN_1                ((u16)0x0004)            /* Bit 1 */
-
-#define  SPI_I2SCFGR_CKPOL                   ((u16)0x0008)            /* steady state clock polarity */
-
-#define  SPI_I2SCFGR_I2SSTD                  ((u16)0x0030)            /* I2SSTD[1:0] bits (I2S standard selection) */
-#define  SPI_I2SCFGR_I2SSTD_0                ((u16)0x0010)            /* Bit 0 */
-#define  SPI_I2SCFGR_I2SSTD_1                ((u16)0x0020)            /* Bit 1 */
-
-#define  SPI_I2SCFGR_PCMSYNC                 ((u16)0x0080)            /* PCM frame synchronization */
-
-#define  SPI_I2SCFGR_I2SCFG                  ((u16)0x0300)            /* I2SCFG[1:0] bits (I2S configuration mode) */
-#define  SPI_I2SCFGR_I2SCFG_0                ((u16)0x0100)            /* Bit 0 */
-#define  SPI_I2SCFGR_I2SCFG_1                ((u16)0x0200)            /* Bit 1 */
-
-#define  SPI_I2SCFGR_I2SE                    ((u16)0x0400)            /* I2S Enable */
-#define  SPI_I2SCFGR_I2SMOD                  ((u16)0x0800)            /* I2S mode selection */
-
-
-/******************  Bit definition for SPI_I2SPR register  *******************/
-#define  SPI_I2SPR_I2SDIV                    ((u16)0x00FF)            /* I2S Linear prescaler */
-#define  SPI_I2SPR_ODD                       ((u16)0x0100)            /* Odd factor for the prescaler */
-#define  SPI_I2SPR_MCKOE                     ((u16)0x0200)            /* Master Clock Output Enable */
-
-
 
 /******************************************************************************/
 /*                                                                            */
