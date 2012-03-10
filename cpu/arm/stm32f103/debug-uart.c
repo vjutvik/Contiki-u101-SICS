@@ -6,6 +6,7 @@
 #include <nvic.h>
 #include "stm32-usart.h"
 #include "stm32-clk.h"
+#include "stm32-nvic.h"
 #include "contiki-conf.h"
 
 /* UART number */
@@ -67,7 +68,7 @@
 _XDBG_DMA_CHANNEL_IFCR_CGIF(DBG_DMA_CHANNEL_NO)
 
 #ifndef DBG_XMIT_BUFFER_LEN
-#define DBG_XMIT_BUFFER_LEN 1024
+#define DBG_XMIT_BUFFER_LEN 2048
 #endif
 
 static unsigned char xmit_buffer[DBG_XMIT_BUFFER_LEN];
