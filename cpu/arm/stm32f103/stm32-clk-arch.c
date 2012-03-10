@@ -173,7 +173,6 @@ uint32_t stm32f_clk_pclk2(void)
 */
 stm32_clk sys_clk = {
   .freq = stm32f_clk_sysclk,
-  .enable = 0,
 };
 
 /** 
@@ -181,7 +180,6 @@ stm32_clk sys_clk = {
 */
 stm32_clk ahb_clk = {
   .freq = stm32f_clk_hclk,
-  .enable = 0,
 };
 
 /** 
@@ -189,7 +187,6 @@ stm32_clk ahb_clk = {
 */
 stm32_clk apb1_clk = {
   .freq = stm32f_clk_pclk1,
-  .enable = NULL,
 };
 
 /** 
@@ -197,7 +194,6 @@ stm32_clk apb1_clk = {
 */
 stm32_clk apb2_clk = {
   .freq = stm32f_clk_pclk2,
-  .enable = NULL,
 };
 
 stm32_clk stm32_clk_arch_clkof(void *periph)
@@ -207,10 +203,10 @@ stm32_clk stm32_clk_arch_clkof(void *periph)
   case ADC1_BASE:
   case ADC2_BASE:
   case ADC3_BASE:
-  case SPI1_BASE:
   case TIM1_BASE:
   case TIM8_BASE:
     */
+  case SPI1_BASE:
   case USART1_BASE:
     return apb2_clk;
     break;
@@ -224,6 +220,7 @@ stm32_clk stm32_clk_arch_clkof(void *periph)
   case UART4_BASE:
   case UART5_BASE:
     */
+  case SPI2_BASE:
   case USART2_BASE:
   case USART3_BASE:
     return apb1_clk;
@@ -255,8 +252,13 @@ static void stm32f10x_switch_pclk(void *periph, int enable)
   case USART3_BASE: 
     reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_USART3EN;  break;
 
+  case SPI1_BASE:
+    reg = &(RCC->APB2ENR);  bit = RCC_APB2ENR_SPI1EN;  break;
+  case SPI2_BASE:
+    reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_SPI2EN;  break;
+
   default:
-    /* No such peripheral */
+    /* No such peripheral - we should probably do something noisy here */
     break;
   }
 
