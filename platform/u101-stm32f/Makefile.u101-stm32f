@@ -2,7 +2,9 @@ STM32TEST =
 
 #CODEPROP_SOURCES = codeprop-otf.c ram-segments.c
 
-CONTIKI_TARGET_DIRS = .
+CONTIKI_TARGET_DIRS = . dev ${addprefix ../u101/,dev}
+CFLAGS += -I$(CONTIKI)/platform/u101
+
 # Master clock frequency
 MCK=48000000
 CFLAGS+=-DAUTOSTART_ENABLE
@@ -11,8 +13,32 @@ ifndef CONTIKI_TARGET_MAIN
 CONTIKI_TARGET_MAIN = contiki-u101-stm32f-main.c
 endif
 
-CONTIKI_TARGET_SOURCEFILES += $(SENSORS) $(STEPPER_ROBOT) \
+U101_PLATFORM_SRC += uspi.c
+U101_PLATFORM_SRC += stm32-id-arch.c
+U101_PLATFORM_SRC += uspi-arch.c
+U101_PLATFORM_SRC += rf230bb.c
+U101_PLATFORM_SRC += rf230hal.c
+U101_PLATFORM_SRC += uip-log.c
+U101_PLATFORM_SRC += node-id.c
+U101_PLATFORM_SRC += slip.c
+U101_PLATFORM_SRC += slip-arch.c
+U101_PLATFORM_SRC += button-sensor.c
+U101_PLATFORM_SRC += sensors.c
+
+CONTIKI_TARGET_SOURCEFILES += $(SENSORS) $(U101_PLATFORM_SRC) \
  $(CODEPROP_SOURCES) $(CONTIKI_TARGET_MAIN)
+
+ifdef UIP_CONF_IPV6
+CFLAGS += -DWITH_UIP6=1
+
+  ifeq (1,1)
+  USB_CDC_ACM_CLASS = 1
+  else
+  USB_CDC_ETH_CLASS = 1
+  endif
+  CFLAGS += -DOLD_STRING_DESCR=1
+
+endif
 
 # include $(CONTIKI)/platform/$(TARGET)/apps/Makefile.apps
 
