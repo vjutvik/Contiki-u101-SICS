@@ -253,8 +253,8 @@ public class Simulation extends Observable implements Runnable {
     this.setChanged();
     this.notifyObservers(this);
 
+    TimeEvent nextEvent = null;
     try {
-      TimeEvent nextEvent;
       while (isRunning) {
 
         /* Handle all poll requests */
@@ -289,7 +289,11 @@ public class Simulation extends Observable implements Runnable {
     			/* Quit simulator if in test mode */
     			System.exit(1);
     		} else {
-    			GUI.showErrorDialog(GUI.getTopParentContainer(), "Simulation error", e, false);
+    		  String title = "Simulation error";
+    		  if (nextEvent instanceof MoteTimeEvent) {
+    		    title += ": " + ((MoteTimeEvent)nextEvent).getMote();
+    		  }
+    		  GUI.showErrorDialog(GUI.getTopParentContainer(), title, e, false);
     		}
     	}
     }
@@ -786,6 +790,12 @@ public class Simulation extends Observable implements Runnable {
         
         motes.add(mote);
         currentRadioMedium.registerMote(mote, Simulation.this);
+
+        /* Notify mote interfaces that node was added */
+        for (MoteInterface i: mote.getInterfaces().getInterfaces()) {
+          i.added();
+        }
+        
         setChanged();
         notifyObservers(mote);
       }
