@@ -130,7 +130,7 @@ void USB_FS_WKUP_IRQhandler(void) UNHANDLED_ALIAS;
 
 #define SECTION(x) __attribute__ ((section(#x)))
 #define ISR_VECTOR_SECTION SECTION(.isr_vector)
-isr_fn isr_vector[61] ISR_VECTOR_SECTION = {
+const isr_fn isr_vector[61] ISR_VECTOR_SECTION = {
   /* Cortex M3 */
 
   /* See linker script */
