@@ -4,6 +4,9 @@
 #include <sys/cc.h>
 #include <sys/etimer.h>
 #include <debug-uart.h>
+#include "stm32-systick.h"
+#include "stm32-clk.h"
+#include "stm32-clk-arch.h"
 
 static volatile clock_time_t current_clock = 0;
 static volatile unsigned long current_seconds = 0;
@@ -23,6 +26,7 @@ SysTick_handler(void)
     /* printf("%d,%d\n", clock_time(),etimer_next_expiration_time  	()); */
 
   }
+  SysTick->LOAD = stm32_clk_frequency(ahb_clk)/8/CLOCK_SECOND;
   if (--second_countdown == 0) {
     current_seconds++;
     second_countdown = CLOCK_SECOND;
@@ -34,7 +38,7 @@ void
 clock_init()
 {
   NVIC_SET_SYSTICK_PRI(8);
-  SysTick->LOAD = MCK/8/CLOCK_SECOND;
+  SysTick->LOAD = stm32_clk_frequency(ahb_clk)/8/CLOCK_SECOND;
   SysTick->CTRL = SysTick_CTRL_ENABLE | SysTick_CTRL_TICKINT;
 }
 
