@@ -22,6 +22,7 @@ STM32L += stm32-spi.c
 STM32L += stm32-id-arch.c
 STM32L += stm32l-flash.c
 STM32L += stm32l-gpio.c
+STM32L += watchdog.c
 
 # SYSAPPS = codeprop-otf.c
 # APPDIRS += $(CONTIKI)/cpu/at91sam7s/loader
