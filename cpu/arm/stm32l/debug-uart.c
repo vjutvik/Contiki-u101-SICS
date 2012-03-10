@@ -103,7 +103,7 @@
 _XDBG_DMA_CHANNEL_IFCR_CGIF(DBG_DMA_CHANNEL_NO)
 
 #ifndef DBG_XMIT_BUFFER_LEN
-#define DBG_XMIT_BUFFER_LEN 2048
+#define DBG_XMIT_BUFFER_LEN 512
 #endif
 
 static unsigned char xmit_buffer[DBG_XMIT_BUFFER_LEN];
