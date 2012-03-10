@@ -50,6 +50,8 @@ u8_t
 usbeth_send(void)
 {
   if ((xmit_buffer[0].flags & USB_BUFFER_SUBMITTED)) return UIP_FW_DROPPED;
+  /* Don't overwrite IP part, move it past Ethernet header */
+  memmove(((u8_t *)uip_buf)+sizeof(struct uip_eth_hdr), uip_buf, uip_len);
   uip_arp_out();
   memcpy(xmit_data, uip_buf, uip_len);
   xmit_buffer[0].next = NULL;
@@ -124,6 +126,9 @@ PROCESS_THREAD(usb_eth_process, ev , data)
 	} else 
 #endif /* UIP_CONF_IPV6 */
 	  if(BUF->type == uip_htons(UIP_ETHTYPE_IP)) {
+            /* Feed packet (minus Ethernet header) to upper layer */
+            memcpy(uip_buf, recv_data+sizeof(struct uip_eth_hdr),
+                   uip_len-sizeof(struct uip_eth_hdr));
 	    uip_len -= sizeof(struct uip_eth_hdr);
 	    tcpip_input();
 	  } else if(BUF->type == uip_htons(UIP_ETHTYPE_ARP)) {
