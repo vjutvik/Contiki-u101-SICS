@@ -231,7 +231,26 @@ static uint8_t channel;
 /* Received frames are buffered to rxframe in the interrupt routine in hal.c */
 uint8_t rxframe_head,rxframe_tail;
 hal_rx_frame_t rxframe[RF230_CONF_RX_BUFFERS];
+extern void dbg_drain(void);
+static void hexdump(uint8_t *buf, int len)
+{
+  int i;
+  for (i=0; i<len; i++) {
+    if ((i%16) == 0) {
+      if (i > 0) {
+        printf("\n");
+        dbg_drain();
+      }
+      printf("%04x: ", i);
+    } else if ((i%16) == 8) {
+      printf(" ");
+    }
 
+    printf("%02x ", buf[i]);
+  }
+  printf("\n");
+  printf("len: %d\n", len);
+}
 /*----------------------------------------------------------------------------*/
 /** \brief  This function retun the Rardio Transceivers current state.
  *
@@ -677,9 +696,10 @@ rf230_init(void)
     Writing 1 to ANT_CTRL selects the antenna path with the PCB trace
     antenna. Writing 2 selects the other path.
   */
-  hal_subregister_write(SR_ANT_CTRL, 1);
-  /* Set this to 3 as opposed to default 7 as instructed by datasheet */
-  hal_subregister_write(SR_PDT_THRES, 3);
+  hal_subregister_write(SR_ANT_CTRL, 2);
+
+  /* Set this to 7 when using diversity and 7 if not. Datasheet says so. */
+  hal_subregister_write(SR_PDT_THRES, 7);
   PRINTF("SR_ANT_CTRL: 0x%x\n", (unsigned int)hal_subregister_read(SR_ANT_CTRL));
   PRINTF("ANT_DIV_EN: 0x%x\n", (unsigned int)hal_subregister_read(ANT_DIV_EN));
 #endif
@@ -717,11 +737,15 @@ rf230_transmit(unsigned short payload_len)
   struct timestamp timestamp;
 #endif /* RF230_CONF_TIMESTAMPS */
 
+  PRINTF("rf230_transmit() - %04ld\n", (uint32_t)clock_time());
+
   //GET_LOCK();
   DEBUGFLOW('T');
+  
+
 
   /* Save receiver state */
-  radiowason=RF230_receive_on;
+  radiowason = RF230_receive_on;
 
   /* If radio is sleeping we have to turn it on first */
   /* This automatically does the PLL calibrations */
@@ -780,16 +804,19 @@ rf230_transmit(unsigned short payload_len)
 #if defined(__AVR_ATmega128RFA1__)
   //sei();
 #endif
-  PRINTF("rf230_transmit:\n");
+
 #if DEBUG>1
 /* Note the dumped packet will have a zero checksum unless compiled with RF230_CONF_CHECKSUM
  * since we don't know what it will be if calculated by the hardware.
  */
   {
+#if 0
     uint8_t i;
     PRINTF("0000");       //Start a new wireshark packet
     for (i=0;i<total_len;i++) PRINTF(" %02x",buffer[i]);
     PRINTF("\n");
+#endif
+    hexdump(buffer, total_len);
   }
 #endif
 
@@ -945,6 +972,7 @@ rf230_send(const void *payload, unsigned short payload_len)
 	int ret = 0;
         uint8_t tmp;
 
+
         tmp = hal_register_read(0x01);
         /* printf("Reg 0x01: %02x\n", (unsigned int)tmp); */
 
@@ -967,7 +995,8 @@ bail:
 #if RADIOSTATS
     if (ret) RF230_sendfail++;
 #endif
-	return ret;
+
+      return ret;
 }
 /*---------------------------------------------------------------------------*/
 int
@@ -1103,11 +1132,10 @@ TIMETABLE_AGGREGATE(aggregate_time, 10);
 #define HAL_PLL_UNLOCK_MASK    ( 0x02 )
 #define HAL_PLL_LOCK_MASK      ( 0x01 )
 
-int rx_started = 0;
-
 int rf230_interrupt(void)
 {
   uint8_t irq_status;
+  uint8_t trx_state;
 
   /* When the carrier wave test mode is active, we don't want to do anything
      here. */
@@ -1125,19 +1153,28 @@ int rf230_interrupt(void)
 
   if (irq_status & HAL_RX_START_MASK) {
     PRINTF("*RX_START ");
-    rx_started = 1;
   }
 
   if (irq_status & HAL_TRX_END_MASK) {
     PRINTF("*TRX_END ");
-    if (rx_started) {
 
+    trx_state = hal_subregister_read(SR_TRX_STATUS);
+    /* The TRX_END interrupt has different meanings depending on which
+       state (or mode) the radio is in. If it's in one of the RX
+       states, a TRX_END interrupt means that we have received a
+       packet. If we are in one of the TX states, it means we have
+       transmitted one. */
+    if ((trx_state == BUSY_RX_AACK) || (trx_state == RX_ON) || 
+        (trx_state == BUSY_RX) || (trx_state == RX_AACK_ON)) {
+      PRINTF("* RX\n");
       hal_frame_read(&rxframe[rxframe_tail]);
       if (rxframe[rxframe_tail].length > 0) {
+        PRINTF("len: %d\n", rxframe[rxframe_tail].length);
         rxframe_tail++;
         if (rxframe_tail >= RF230_CONF_RX_BUFFERS) {
-          rxframe_tail=0;
+          rxframe_tail = 0;
         }
+        PRINTF("tail: %d\n", rxframe_tail);
 
       /* Poll the receive process, unless the stack thinks the radio is off */
 #if RADIOALWAYSON
@@ -1161,13 +1198,15 @@ int rf230_interrupt(void)
 #if RADIOALWAYSON
         } else {
           DEBUGFLOW('-');
+          PRINTF("RF230_receive_on off?");
           rxframe[rxframe_head].length=0;
         }
 #endif
-      } else {
-        PRINTF("Spurious?\n");
-        rx_started = 0;
       }
+    } else if ((trx_state == TX_ARET_ON) || (trx_state == BUSY_TX_ARET)) {
+      PRINTF("* TX\n");
+    } else {
+      PRINTF("UNKNOWN INTERRUPT\n");
     }
   }
   if (irq_status & HAL_TRX_UR_MASK) {
@@ -1216,26 +1255,30 @@ PROCESS_THREAD(rf230_rx_process, ev, data)
 #if RF230_TIMETABLE_PROFILING
     TIMETABLE_TIMESTAMP(rf230_timetable, "poll");
 #endif /* RF230_TIMETABLE_PROFILING */
+    do {
+      pending = 0;
+      packetbuf_clear();
 
-    pending = 0;
-    packetbuf_clear();
-    len = rf230_read(packetbuf_dataptr(), PACKETBUF_SIZE);        
+      hal_disable_int();
+      len = rf230_read(packetbuf_dataptr(), PACKETBUF_SIZE);
+      hal_enable_int();
 
-    if(len > 0) {
-      packetbuf_set_datalen(len);
-
-      NETSTACK_RDC.input();
+      if (len > 0) {
+        packetbuf_set_datalen(len);
+        
+        NETSTACK_RDC.input();
 #if RF230_TIMETABLE_PROFILING
-      TIMETABLE_TIMESTAMP(rf230_timetable, "end");
-      timetable_aggregate_compute_detailed(&aggregate_time,
-                                           &rf230_timetable);
-      timetable_clear(&rf230_timetable);
+        TIMETABLE_TIMESTAMP(rf230_timetable, "end");
+        timetable_aggregate_compute_detailed(&aggregate_time,
+                                             &rf230_timetable);
+        timetable_clear(&rf230_timetable);
 #endif /* RF230_TIMETABLE_PROFILING */
-    } else {
+      } else if (len < 0) {
 #if RADIOSTATS
-       RF230_receivefail++;
+        RF230_receivefail++;
 #endif
-    }
+      }
+    } while(len > 0);
   }
 
   PROCESS_END();
@@ -1249,7 +1292,7 @@ PROCESS_THREAD(rf230_rx_process, ev, data)
 static int
 rf230_read(void *buf, unsigned short bufsize)
 {
-  uint8_t len,*framep;
+  uint8_t len, *framep;
 #if FOOTER_LEN
   uint8_t footer[FOOTER_LEN];
 #endif /* FOOTER_LEN */
@@ -1260,14 +1303,19 @@ rf230_read(void *buf, unsigned short bufsize)
   struct timestamp t;
 #endif /* RF230_CONF_TIMESTAMPS */
   /* The length includes the twp-byte checksum but not the LQI byte */
-  len=rxframe[rxframe_head].length;
-  if (len==0) {
+
+  PRINTF("rf230_read() - %04ld\n", (uint32_t)clock_time());
+  len = rxframe[rxframe_head].length;
+  if (len == 0) {
 #if RADIOALWAYSON && DEBUGFLOWSIZE
-   if (RF230_receive_on==0) {if (debugflow[debugflowsize-1]!='z') DEBUGFLOW('z');}
+   if (RF230_receive_on == 0) {
+     if (debugflow[debugflowsize-1]!='z') {
+       DEBUGFLOW('z');
+     }
 #endif
-   printf("cxmac calls with radio off?");
-    return 0;
-  }
+     PRINTF("No more packets?\n");
+     return 0;
+   }
 
 #if RADIOALWAYSON
 if (RF230_receive_on) {
@@ -1284,13 +1332,18 @@ if (RF230_receive_on) {
 #endif /* RF230_CONF_TIMESTAMPS */
 
 // PRINTSHORT("r%d",rxframe[rxframe_head].length);  
-  PRINTF("rf230_read: %u bytes lqi %u crc %u\n",rxframe[rxframe_head].length,rxframe[rxframe_head].lqi,rxframe[rxframe_head].crc);
+  PRINTF("rf230_read: %u bytes lqi %u crc %u\n",
+         rxframe[rxframe_head].length, rxframe[rxframe_head].lqi, rxframe[rxframe_head].crc);
 #if DEBUG>1
  {
+#if 0
     uint8_t i;
     PRINTF("0000");
-    for (i=0;i<rxframe[rxframe_head].length;i++) PRINTF(" %02x",rxframe[rxframe_head].data[i]);
+    for (i=0; i<rxframe[rxframe_head].length; i++) 
+      PRINTF(" %02x",rxframe[rxframe_head].data[i]);
     PRINTF("\n");
+#endif
+    hexdump(rxframe[rxframe_head].data, rxframe[rxframe_head].length);
   }
 #endif
 
@@ -1303,7 +1356,7 @@ if (RF230_receive_on) {
     flushrx();
     RIMESTATS_ADD(badsynch);
 //    RELEASE_LOCK();
-    return 0;
+    return -1;
   }
 
   if(len <= AUX_LEN) {
@@ -1312,7 +1365,7 @@ if (RF230_receive_on) {
     flushrx();
     RIMESTATS_ADD(tooshort);
  //   RELEASE_LOCK();
-    return 0;
+    return -1;
   }
 
   if(len - AUX_LEN > bufsize) {
@@ -1321,42 +1374,56 @@ if (RF230_receive_on) {
     flushrx();
     RIMESTATS_ADD(toolong);
 //    RELEASE_LOCK();
-    return 0;
+    return -1;
   }
  /* Transfer the frame, stripping the footer, but copying the checksum */
-  framep=&(rxframe[rxframe_head].data[0]);
-  memcpy(buf,framep,len-AUX_LEN+CHECKSUM_LEN);
+  framep = &(rxframe[rxframe_head].data[0]);
+  memcpy(buf, framep,len-AUX_LEN+CHECKSUM_LEN);
   rf230_last_correlation = rxframe[rxframe_head].lqi;
 
   /* Clear the length field to allow buffering of the next packet */
-  rxframe[rxframe_head].length=0;
-  rxframe_head++;if (rxframe_head >= RF230_CONF_RX_BUFFERS) rxframe_head=0;
+  rxframe[rxframe_head].length = 0;
+  rxframe_head++;
+  if (rxframe_head >= RF230_CONF_RX_BUFFERS)
+    rxframe_head = 0;
+
   /* If another packet has been buffered, schedule another receive poll */
-  if (rxframe[rxframe_head].length) rf230_interrupt();
-  
+#if 0
+  if (rxframe[rxframe_head].length)
+    rf230_interrupt();
+#endif
+
  /* Point to the checksum */
-  framep+=len-AUX_LEN; 
+  framep += len - AUX_LEN; 
+
 #if RF230_CONF_CHECKSUM
-  memcpy(&checksum,framep,CHECKSUM_LEN);
+  memcpy(&checksum, framep, CHECKSUM_LEN);
 #endif /* RF230_CONF_CHECKSUM */
-  framep+=CHECKSUM_LEN;
+
+  framep += CHECKSUM_LEN;
+
 #if RF230_CONF_TIMESTAMPS
   memcpy(&t,framep,TIMESTAMP_LEN);
 #endif /* RF230_CONF_TIMESTAMPS */
-  framep+=TIMESTAMP_LEN;
+
+  framep += TIMESTAMP_LEN;
+
 #if FOOTER_LEN
   memcpy(footer,framep,FOOTER_LEN);
 #endif
+
 #if RF230_CONF_CHECKSUM
   if(checksum != crc16_data(buf, len - AUX_LEN, 0)) {
     DEBUGFLOW('K');
     PRINTF("checksum failed 0x%04x != 0x%04x\n",
       checksum, crc16_data(buf, len - AUX_LEN, 0));
   }
+
 #if FOOTER_LEN
   if(footer[1] & FOOTER1_CRC_OK &&
      checksum == crc16_data(buf, len - AUX_LEN, 0)) {
 #endif
+
 #endif /* RF230_CONF_CHECKSUM */
 
 /* Get the received signal strength for the packet, 0-84 dB above rx threshold */
@@ -1410,7 +1477,7 @@ if (RF230_receive_on) {
 #if RADIOALWAYSON
 } else {
    DEBUGFLOW('R');  //Stack thought radio was off
-   return 0;
+   return -1;
 }
 #endif
 }
