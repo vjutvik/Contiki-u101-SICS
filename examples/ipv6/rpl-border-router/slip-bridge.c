@@ -120,7 +120,7 @@ output(void)
 }
 
 /*---------------------------------------------------------------------------*/
-#if defined CONTIKI_TARGET_U101_STM32F || defined CONTIKI_TARGET_U101_STM32L
+#if !defined CONTIKI_TARGET_U101_STM32F && !defined CONTIKI_TARGET_U101_STM32L
 #undef putchar
 int
 putchar(int c)
