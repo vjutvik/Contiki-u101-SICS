@@ -96,6 +96,7 @@ slip_input_callback(void)
 static void
 init(void)
 {
+  printf("slip-bridge init\n");
   slip_arch_init(BAUD2UBR(115200));
   process_start(&slip_process, NULL);
   slip_set_input_callback(slip_input_callback);
@@ -119,6 +120,7 @@ output(void)
 }
 
 /*---------------------------------------------------------------------------*/
+#if defined CONTIKI_TARGET_U101_STM32F || defined CONTIKI_TARGET_U101_STM32L
 #undef putchar
 int
 putchar(int c)
@@ -146,6 +148,7 @@ putchar(int c)
   }
   return c;
 }
+#endif
 /*---------------------------------------------------------------------------*/
 const struct uip_fallback_interface rpl_interface = {
   init, output
