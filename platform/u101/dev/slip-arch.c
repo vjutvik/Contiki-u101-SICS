@@ -117,9 +117,6 @@ PROCESS_THREAD(usb_acm_process, ev , data)
         for (i=0; i<len; i++) {
           int r;
           r = slip_input_byte((unsigned char)recv_data[i]);
-          if (0 != r) {
-            printf("s1\n");
-          }
         }
 
         init_recv_buffer();
