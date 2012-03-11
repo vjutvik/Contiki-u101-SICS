@@ -44,8 +44,10 @@ handle_cdc_acm_requests()
     case SET_CONTROL_LINE_STATE:
       if (usb_setup_buffer.wValue & 0x02) {
 	puts("Carrier on");
+        usb_cdc_acm_carrier(1);
       } else {
 	puts("Carrier off");
+        usb_cdc_acm_carrier(0);
       }
       if (usb_setup_buffer.wValue & 0x01) {
 	puts("DTE on");
