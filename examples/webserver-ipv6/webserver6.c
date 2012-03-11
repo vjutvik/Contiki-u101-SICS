@@ -34,5 +34,7 @@
 #include "webserver-nogui.h"
 
 /*---------------------------------------------------------------------------*/
+#if !defined CONTIKI_TARGET_U101_STM32F && !defined CONTIKI_TARGET_U101_STM32L
 AUTOSTART_PROCESSES(&webserver_nogui_process);
+#endif
 /*---------------------------------------------------------------------------*/
