@@ -29,11 +29,11 @@ static void spi_radio_cs(int hi) {
   int i;
 #if (RF230_BUS == 1)
   if (hi) {
+    
     stm32l_gpio_output_set(GPIOA, 4);
-    //NVIC_ENABLE_INT(EXTI15_10_IRQChannel);
   } else {
-    //NVIC_DISABLE_INT(EXTI15_10_IRQChannel);
     stm32l_gpio_output_clear(GPIOA, 4);
+
   }
   if (!hi) {
     for (i=0; i<10; i++) {
@@ -298,6 +298,16 @@ void delay_us(volatile int i)
     for (j = 20; j > 0; j--)
       asm ("nop");
   }
+}
+
+void hal_disable_int(void)
+{
+  NVIC_DISABLE_INT(EXTI15_10_IRQChannel);
+}
+
+void hal_enable_int(void)
+{
+  NVIC_ENABLE_INT(EXTI15_10_IRQChannel);
 }
 
 void EXTI9_5_handler()

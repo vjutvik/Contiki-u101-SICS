@@ -71,6 +71,8 @@ void hal_subregister_write( uint8_t address, uint8_t mask, uint8_t position,
                             uint8_t value );
 void hal_frame_write(uint8_t *write_buffer, uint8_t length);
 void hal_frame_read(hal_rx_frame_t *rx_frame);
+void hal_disable_int(void);
+void hal_enable_int(void);
 
 
 typedef int (*hal_irq_callback_t)(void);
@@ -89,7 +91,7 @@ extern hal_irq_callback_t hal_irq_callback;
 
 /* Number of receive buffers in RAM. */
 #ifndef RF230_CONF_RX_BUFFERS
-#define RF230_CONF_RX_BUFFERS 1
+#define RF230_CONF_RX_BUFFERS 3
 #endif
 
 #define HAL_TRX_CMD_RW         (0xC0) /**<  Register Write (short mode). */
