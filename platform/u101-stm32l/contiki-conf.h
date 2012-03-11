@@ -24,25 +24,95 @@ typedef unsigned int uip_stats_t;
 #define BV(x) (1<<(x))
 #endif
 
-#define NETSTACK_CONF_NETWORK     rime_driver
+#if WITH_UIP6
+
+/* Network setup for IPv6 */
+#define NETSTACK_CONF_NETWORK     sicslowpan_driver
+#define NETSTACK_CONF_MAC         nullmac_driver 
+#define NETSTACK_CONF_RDC         nullrdc_driver
+#define NETSTACK_CONF_RADIO       rf230_driver
+#define NETSTACK_CONF_FRAMER      framer_802154
+
+#define NETSTACK_CONF_RDC_CHANNEL_CHECK_RATE      8
+#define RIME_CONF_NO_POLITE_ANNOUCEMENTS 0
+#define CXMAC_CONF_ANNOUNCEMENTS         0
+#define XMAC_CONF_ANNOUNCEMENTS          0
+
+#define CHANNEL_802_15_4          26
+
+#else /* WITH_UIP6 */
+
+/* Network setup for non-IPv6 (rime). */
 #define RIMEADDR_CONF_SIZE        2
 
+#define NETSTACK_CONF_NETWORK     rime_driver
 #define NETSTACK_CONF_MAC         nullmac_driver
 #define NETSTACK_CONF_RDC         nullrdc_driver
 #define NETSTACK_CONF_FRAMER      framer_802154
 #define NETSTACK_CONF_RADIO       rf230_driver
+
+#define NETSTACK_CONF_RDC_CHANNEL_CHECK_RATE      8
+
 #define CHANNEL_802_15_4          26
 #define RF230_CONF_AUTOACK        1
 #define RF230_CONF_AUTORETRIES    0
 
+#endif
+
+
+
+#ifdef WITH_UIP6
+#define RIMEADDR_CONF_SIZE              8
+
+#define UIP_CONF_LL_802154              1
+#define UIP_CONF_LLH_LEN                0
+
+#define UIP_CONF_ROUTER                 1  
+#define UIP_CONF_IPV6_RPL               1
+
+#define UIP_CONF_DS6_NBR_NBU            5
+#define UIP_CONF_DS6_ROUTE_NBU          5
+
+#define UIP_CONF_ND6_SEND_RA            0
+#define UIP_CONF_ND6_REACHABLE_TIME     600000
+#define UIP_CONF_ND6_RETRANS_TIMER      10000
+
+#define UIP_CONF_IPV6                   1
+#define UIP_CONF_IPV6_QUEUE_PKT         0
+#define UIP_CONF_IPV6_CHECKS            0
+#define UIP_CONF_IPV6_REASSEMBLY        0
+#define UIP_CONF_ICMP6                  1
+#define UIP_CONF_NETIF_MAX_ADDRESSES    2
+#define UIP_CONF_ND6_MAX_PREFIXES       2
+#define UIP_CONF_ND6_MAX_NEIGHBORS      2
+#define UIP_CONF_ND6_MAX_DEFROUTERS     2
+#define UIP_CONF_IP_FORWARD             0
+#define UIP_CONF_BUFFER_SIZE            1300
+#define SICSLOWPAN_CONF_FRAG            1
+#define SICSLOWPAN_CONF_MAXAGE          8
+
+#define SICSLOWPAN_CONF_COMPRESSION_IPV6        0
+#define SICSLOWPAN_CONF_COMPRESSION_HC1         1
+#define SICSLOWPAN_CONF_COMPRESSION_HC01        2
+#define SICSLOWPAN_CONF_COMPRESSION             SICSLOWPAN_COMPRESSION_HC06
+#ifndef SICSLOWPAN_CONF_FRAG
+#define SICSLOWPAN_CONF_FRAG                    1
+#define SICSLOWPAN_CONF_MAXAGE                  8
+#endif /* SICSLOWPAN_CONF_FRAG */
+#define SICSLOWPAN_CONF_CONVENTIONAL_MAC        1
+#define SICSLOWPAN_CONF_MAX_ADDR_CONTEXTS       2
+
+#else /* WITH_UIP6 */
+
+
 /* uIP configuration */
 #define UIP_CONF_LLH_LEN         0
 #define UIP_CONF_BROADCAST       1
-#define UIP_CONF_LOGGING 1
-#define UIP_CONF_BUFFER_SIZE 1500
+#define UIP_CONF_LOGGING         1
 
-#define UIP_CONF_TCP_FORWARD 1
+#define UIP_CONF_TCP_FORWARD     1
 
+#endif /* WITH_UIP6 */
 
 
 /* Prefix for relocation sections in ELF files */
