@@ -1,5 +1,9 @@
 
 CONTIKI_TARGET_DIRS = . dev ${addprefix ../u101/,dev}
+#CONTIKI_TARGET_DIRS = . u101-stm32l/dev $(CONTIKI)/platform/u101/dev
+
+CFLAGS += -I$(CONTIKI)/platform/u101/dev
+CFLAGS += -I$(CONTIKI)/platform/u101
 
 # Master clock frequency
 MCK=32000000
@@ -14,9 +18,23 @@ U101_PLATFORM_SRC += uspi-arch.c
 U101_PLATFORM_SRC += rf230bb.c
 U101_PLATFORM_SRC += rf230hal.c
 U101_PLATFORM_SRC += uip-log.c
+U101_PLATFORM_SRC += node-id.c
+U101_PLATFORM_SRC += slip.c
+U101_PLATFORM_SRC += slip-arch.c
+U101_PLATFORM_SRC += button-sensor.c
+U101_PLATFORM_SRC += sensors.c
 
 CONTIKI_TARGET_SOURCEFILES += $(SENSORS) $(U101_PLATFORM_SRC) \
  $(CODEPROP_SOURCES) $(CONTIKI_TARGET_MAIN)
+
+ifdef UIP_CONF_IPV6
+CFLAGS += -DWITH_UIP6=1
+
+# We can do either this
+USB_CDC_ACM_CLASS = 1
+CFLAGS += -DOLD_STRING_DESCR=1
+
+endif
 
 # include $(CONTIKI)/platform/$(TARGET)/apps/Makefile.apps
 
