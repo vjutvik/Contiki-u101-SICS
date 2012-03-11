@@ -1,6 +1,7 @@
+#include <stdio.h>
 #include <stdint.h>
 #include <stm32f10x_map.h>
-
+#include "stm32-scb.h"
 
 extern int main(void);
 
@@ -259,11 +260,58 @@ unhandled_int(void)
   while(1);
 }
 
+#if 0
+void hard_fault_handler_debug(unsigned int * hardfault_args)
+{
+  unsigned int st_r0;
+  unsigned int st_r1;
+  unsigned int st_r2;
+  unsigned int st_r3;
+  unsigned int st_r12;
+  unsigned int st_lr;
+  unsigned int st_pc;
+  unsigned int st_psr;
+
+  st_r0 = ((unsigned long) hardfault_args[0]);
+  st_r1 = ((unsigned long) hardfault_args[1]);
+  st_r2 = ((unsigned long) hardfault_args[2]);
+  st_r3 = ((unsigned long) hardfault_args[3]);
+
+  st_r12 = ((unsigned long) hardfault_args[4]);
+  st_lr = ((unsigned long) hardfault_args[5]);
+  st_pc = ((unsigned long) hardfault_args[6]);
+  st_psr = ((unsigned long) hardfault_args[7]);
+
+  printf ("Hard fault handler:\n");
+  printf ("R0 = %lx\n", st_r0);
+  printf ("R1 = %lx\n", st_r1);
+  printf ("R2 = %lx\n", st_r2);
+  printf ("R3 = %lx\n", st_r3);
+  printf ("R12 = %lx\n", st_r12);
+  printf ("LR = %lx\n", st_lr);
+  printf ("PC = %lx\n", st_pc);
+  printf ("PSR = %lx\n", st_psr);
+  printf ("BFAR = %lx\n", (*((volatile unsigned long *)(0xE000ED38))));
+  printf ("CFSR = %lx\n", (*((volatile unsigned long *)(0xE000ED28))));
+  printf ("HFSR = %lx\n", (*((volatile unsigned long *)(0xE000ED2C))));
+  printf ("DFSR = %lx\n", (*((volatile unsigned long *)(0xE000ED30))));
+  printf ("AFSR = %lx\n", (*((volatile unsigned long *)(0xE000ED3C))));
+
+ while (1)
+   ;
+}
+
+void dHardFault_handler(void)
+{
+  asm volatile("1: tst lr, #4\n\tite eq\n\tmrseq r0, msp\n\tmrsne r0, psp\n\tb hard_fault_handler_debug\n");
+}
+#else
 static void
 dHardFault_handler(void)
 {
-  while(1);
+
 }
+#endif
 
 static void
 dUsageFault_handler(void)
