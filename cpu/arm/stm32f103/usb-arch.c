@@ -269,7 +269,7 @@ usb_arch_setup(void)
   unsigned int i;
   RCC->APB1RSTR |= RCC_APB1RSTR_USBRST;
   RCC->APB2ENR |=  (RCC_APB2ENR_AFIOEN | RCC_APB2ENR_IOPAEN);
-#if defined CONTIKI_PLATFORM_U101_STM32F || defined CONTIKI_PLATFORM_U101_STM32L
+#if defined CONTIKI_TARGET_U101_STM32F || defined CONTIKI_TARGET_U101_STM32L
   RCC->APB2ENR |=  (RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN);
 #endif
   RCC->APB1ENR |= (RCC_APB1ENR_USBEN);
@@ -277,7 +277,8 @@ usb_arch_setup(void)
 
   GPIO_CONF_OUTPUT_PORT(A,11,ALT_PUSH_PULL,50);
   GPIO_CONF_OUTPUT_PORT(A,12,ALT_PUSH_PULL,50);
-#if defined CONTIKI_PLATFORM_U101_STM32F || defined CONTIKI_PLATFORM_U101_STM32L
+#if defined CONTIKI_TARGET_U101_STM32F || defined CONTIKI_TARGET_U101_STM32L
+
   /* This is our "disconnect" pin */
   GPIO_CONF_OUTPUT_PORT(B,8, PUSH_PULL, 2);
   GPIOB->BSRR = 1 << 8;
@@ -303,7 +304,7 @@ usb_arch_setup(void)
   /* Put buffer table at beginning of buffer memory */
   USB->BTABLE = 0;
   usb_arch_reset();
-#if defined CONTIKI_PLATFORM_U101_STM32F || defined CONTIKI_PLATFORM_U101_STM32L
+#if defined CONTIKI_TARGET_U101_STM32F || defined CONTIKI_TARGET_U101_STM32L
   /* This is our "disconnect" pin */
   GPIOB->BRR = 1 << 8;
 #else
