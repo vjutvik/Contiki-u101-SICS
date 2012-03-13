@@ -777,7 +777,7 @@ rf230_transmit(unsigned short payload_len)
 #endif
 
   txpower = 0;
-  
+
   if(packetbuf_attr(PACKETBUF_ATTR_RADIO_TXPOWER) > 0) {
     /* Remember the current transmission power */
     txpower = rf230_get_txpower();
@@ -1151,6 +1151,9 @@ int rf230_interrupt(void)
   irq_status = hal_register_read(RG_IRQ_STATUS);
   PRINTF("IRQ status: %02x\n", (unsigned int)irq_status);
 
+  /* The datasheet says "By using the Extended Operating Mode, it is
+     recommended to mask IRQ_2 (RX_START)" so we might want to disable
+     this completely. At least, we don't want to do anything here.  */
   if (irq_status & HAL_RX_START_MASK) {
     PRINTF("*RX_START ");
   }
@@ -1166,7 +1169,11 @@ int rf230_interrupt(void)
        transmitted one. */
     if ((trx_state == BUSY_RX_AACK) || (trx_state == RX_ON) || 
         (trx_state == BUSY_RX) || (trx_state == RX_AACK_ON)) {
-      PRINTF("* RX\n");
+      /* RX */
+      PRINTF("*RX\n");
+#if RF230_CONF_AUTOACK
+      rf230_last_rssi = hal_subregister_read(SR_ED_LEVEL);
+#endif
       hal_frame_read(&rxframe[rxframe_tail]);
       if (rxframe[rxframe_tail].length > 0) {
         PRINTF("len: %d\n", rxframe[rxframe_tail].length);
@@ -1204,7 +1211,9 @@ int rf230_interrupt(void)
 #endif
       }
     } else if ((trx_state == TX_ARET_ON) || (trx_state == BUSY_TX_ARET)) {
-      PRINTF("* TX\n");
+      /* TX */
+
+      PRINTF("*TX\n");
     } else {
       PRINTF("UNKNOWN INTERRUPT\n");
     }
@@ -1426,20 +1435,6 @@ if (RF230_receive_on) {
 
 #endif /* RF230_CONF_CHECKSUM */
 
-/* Get the received signal strength for the packet, 0-84 dB above rx threshold */
-#if 0   //more general
-    rf230_last_rssi = rf230_get_raw_rssi();
-#else   //faster
-#if RF230_CONF_AUTOACK
- //   rf230_last_rssi = hal_subregister_read(SR_ED_LEVEL);  //0-84 resolution 1 dB
-    rf230_last_rssi = hal_register_read(RG_PHY_ED_LEVEL);  //0-84, resolution 1 dB
-#else
-/* last_rssi will have been set at RX_START interrupt */
-//  rf230_last_rssi = 3*hal_subregister_read(SR_RSSI);    //0-28 resolution 3 dB
-#endif
-#endif /* speed vs. generality */
-
- //   rf230_last_correlation = rxframe[rxframe_head].lqi;
     packetbuf_set_attr(PACKETBUF_ATTR_RSSI, rf230_last_rssi);
     packetbuf_set_attr(PACKETBUF_ATTR_LINK_QUALITY, rf230_last_correlation);
 
