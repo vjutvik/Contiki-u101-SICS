@@ -82,6 +82,9 @@ stm32_i2c_init(STM32_I2C *i2c)
 
   /* Set ACK bit */
   i2c->CR1 |= I2C_CR1_ACK;
+
+  /* Enable peripheral */
+  stm32_i2c_enable(i2c);
 }
 
 
@@ -133,7 +136,7 @@ stm32_i2c_start(STM32_I2C *i2c) {
 
 int 
 stm32_i2c_write(STM32_I2C *i2c, uint8_t addr, const uint8_t len, uint8_t *buf, 
-          uint8_t stop) 
+                uint8_t stop)
 {
   volatile uint32_t tmp;
   int timeout;
@@ -353,7 +356,19 @@ stm32_i2c_read(STM32_I2C *i2c, uint8_t addr, const uint8_t len, uint8_t *buf)
     return -20;
   }
 
+  
   /* Phew. */
   return 0;
 }
 
+void
+stm32_i2c_enable(STM32_I2C *i2c)
+{
+  i2c->CR1 |= I2C_CR1_PE;
+}
+
+void
+stm32_i2c_disable(STM32_I2C *i2c)
+{
+  i2c->CR1 &= ~(I2C_CR1_PE);
+}
