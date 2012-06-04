@@ -1,7 +1,10 @@
 
 ### Code common for all ARM CPUs
 
-CONTIKI_CPU_ARM=$(CONTIKI)/cpu/arm/
+#CONTIKI_CPU_ARM=$(CONTIKI)/cpu/arm/
+CONTIKI2=$(TARGET_DIR)/../..
+CONTIKI_CPU_ARM=$(CONTIKI2)/cpu/arm/
+
 CONTIKI_CPU_ARM_COMMON=$(CONTIKI_CPU_ARM)/common
 
 ### Define the CPU directory
@@ -69,9 +72,8 @@ PROG=openocd
 
 ARCH_FLAGS= -march=armv7-m -mthumb
 
-CFLAGSNO = -I. -I$(CONTIKI)/core -I$(CONTIKI_CPU) -I$(CONTIKI_CPU)/loader \
+CFLAGSNO = -I. -I$(CONTIKI_CPU) -I$(CONTIKI_CPU)/loader \
 	   -I$(CONTIKI_CPU)/dbg-io \
-           -I$(CONTIKI)/platform/$(TARGET) \
            ${addprefix -I,$(APPDIRS)} \
            -DWITH_UIP -DWITH_ASCII -DMCK=$(MCK) \
            -Wall $(ARCH_FLAGS) -g -D SUBTARGET=$(SUBTARGET)
@@ -149,7 +151,8 @@ symbols.c: $(CORE)
 
 else
 %.$(TARGET): %-nosyms.$(TARGET)
-	ln -sf $< $@
+#	ln -sf $< $@
+	cp $< $@
 endif
 
 empty-symbols.c:

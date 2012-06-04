@@ -38,7 +38,24 @@ endif
 
 # include $(CONTIKI)/platform/$(TARGET)/apps/Makefile.apps
 
-include $(CONTIKI)/cpu/arm/stm32l/Makefile.stm32l
+
+
+# Hack start
+# Temporary workaround until support for external CPU folders has been
+# pushed to Contiki git.
+ifndef TARGET_DIR
+  TARGET_DIR := ${dir $(target_makefile)}
+endif
+
+### Define the CPU directory
+CONTIKI_CPU=$(TARGET_DIR)/../../cpu/arm/stm32l
+#include $(CONTIKI_CPU)/Makefile.sam3u
+include $(CONTIKI_CPU)/Makefile.stm32l
+# Hack end
+
+
+# include $(CONTIKI)/cpu/arm/stm32l/Makefile.stm32l  # Ignored because of hack
+
 
 #contiki-$(TARGET).a: ${addprefix $(OBJECTDIR)/,symbols.o}
 
