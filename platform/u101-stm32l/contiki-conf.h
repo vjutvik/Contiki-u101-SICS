@@ -3,6 +3,12 @@
 
 #include <stdint.h>
 
+#ifdef PLATFORM_CONF_H
+#include PLATFORM_CONF_H
+#else
+#include "platform-conf.h"
+#endif /* PLATFORM_CONF_H */
+
 #define CCIF
 #define CLIF
 
@@ -131,4 +137,9 @@ typedef unsigned int uip_stats_t;
 #define DBG_UART_RXPORT B
 #define DBG_UART_RXPIN 11
 #define DBG_UART_REMAP 0
+
+#ifdef PROJECT_CONF_H
+#include PROJECT_CONF_H
+#endif
+
 #endif /* __CONTIKI_CONF_H__ */
