@@ -7,7 +7,7 @@
 #include <stm32-nvic.h>
 #include <nvic.h>
 #include "rf230hal.h"
-#include "u101-stm32l.h"
+#include "platform-conf.h"
 
 hal_irq_callback_t hal_irq_callback = 0;
 
