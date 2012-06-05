@@ -17,7 +17,7 @@ The Debian package of above (ver. 0.6.0) is known to work.
 
 Executing the following to program:
 
-make OPENOCD_CFG=interface/neodb.cfg OPENOCD="sudo openocd" TARGETDIRS=../../../contiki-u101/platform TARGET=u101-stm32l <name of your binary>.u
+make OPENOCD_CFG=interface/neodb.cfg OPENOCD="sudo openocd" TARGETDIRS=../../../contiki-u101/platform TARGET=u101-stm32l <name of your binary>.upload
 
 If you encounter chip reset / misc hardware problems during programming, just try again.
 

@@ -165,7 +165,7 @@ empty-symbols.c:
 #$(error "Set OPENOCD_CFG to the configuration file of your JTAG adapter for OpenOCD")
 #endif
 
-%.upload: %.bin
+%.upload: %.u101-stm32l
 # Clear lock bits
 	$(OPENOCD) -s $(OPENOCD_DIR) \
 	-f $(OPENOCD_CFG) \
