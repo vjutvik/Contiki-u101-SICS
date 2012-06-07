@@ -318,9 +318,12 @@ static void stm32l_switch_pclk(void *periph, int enable)
 
   case SPI1_BASE:
     reg = &(RCC->APB2ENR);  bit = RCC_APB2ENR_SPI1EN;    break;
+  case I2C1_BASE:
+    reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_I2C1EN;    break;
 
 
   default:
+    printf("Can not enable peripheral at address %x\n", (uint32_t)periph);
     /* No such peripheral */
     break;
   }
