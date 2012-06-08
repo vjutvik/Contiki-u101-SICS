@@ -19,8 +19,10 @@
 
 #include "stm32-clk.h"
 #include "stm32-spi.h"
+#include "stm32-i2c.h"
 #include "stm32-id.h"
 #include "uspi.h"
+#include "ui2c.h"
 #include "stm32l.h"
 #include "rf230bb.h"
 #include "crc16.h"
@@ -32,6 +34,9 @@ unsigned int idle_count = 0;
 
 const uspi_master spim1 = {
   .bus = (uint32_t)SPI1,
+};
+const ui2c_master i2cm1 = {
+  .bus = (uint32_t)I2C1,
 };
 
 SENSORS(&button_sensor);
@@ -118,6 +123,7 @@ static void
 u101_stm32l_init(void)
 {
   int r;
+  int temp;
   rimeaddr_t addr;
 
   clock_init();
@@ -127,6 +133,17 @@ u101_stm32l_init(void)
 
   /* Radio needs SPI */
   uspi_master_init(&spim1);
+
+  /* Init i2c as well */
+  ui2c_master_init(&i2cm1);
+
+  stcn75_init();
+  r = stcn75_get_temperature_degc(&temp);
+  if (0 != r) {
+    printf("Couldn't get temp\n");
+  } else {
+    printf("temp: %d deg C\n", temp);
+  }
 
   u101_stm32l_set_address(&addr);
 
@@ -196,7 +213,7 @@ int
 main()
 {
   /* We probably want the debug uart at all times and we want it early */
-  dbg_setup_uart(115200);
+  dbg_setup_uart_default(115200);
 
   /* Output some information initially */
   u101_stm32l_banner();
