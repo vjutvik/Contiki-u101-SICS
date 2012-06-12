@@ -47,9 +47,9 @@ typedef struct {
      management later on. */
 } stm32_clk;
 
-uint32_t stm32_clk_frequency(stm32_clk clk);
+uint32_t stm32_clk_frequency(stm32_clk *clk);
 
-stm32_clk stm32_clk_clkof(void *periph);
+stm32_clk *stm32_clk_clkof(void *periph);
 void stm32_clk_pclk_enable(void *periph);
 void stm32_clk_pclk_disable(void *periph);
 
@@ -57,7 +57,7 @@ void stm32_clk_pclk_disable(void *periph);
 
 /* Given a peripheral base address, it should return an stm32_clk which
    is the clock of the bus which the peripheral sits on. */
-stm32_clk stm32_clk_arch_clkof(void *periph);
+stm32_clk *stm32_clk_arch_clkof(void *periph);
 
 /* Given a peripheral base address, enables the clock to that peripheral. */
 void stm32_clk_arch_pclk_enable(void *periph);
