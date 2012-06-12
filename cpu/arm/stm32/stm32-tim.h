@@ -46,24 +46,6 @@ typedef struct {
   uint16_t R20;
 } STM32_TIM;
 
-#define TIM2_BASE                       (APB1PERIPH_BASE + 0x0000)
-#define TIM3_BASE                       (APB1PERIPH_BASE + 0x0400)
-#define TIM4_BASE                       (APB1PERIPH_BASE + 0x0800)
-#define TIM6_BASE                       (APB1PERIPH_BASE + 0x1000)
-#define TIM7_BASE                       (APB1PERIPH_BASE + 0x1400)
-#define TIM9_BASE                       (APB2PERIPH_BASE + 0x0800)
-#define TIM10_BASE                      (APB2PERIPH_BASE + 0x0C00)
-#define TIM11_BASE                      (APB2PERIPH_BASE + 0x1000)
-
-#define TIM2                            ((TIM_ *)TIM2_BASE)
-#define TIM3                            ((TIM_ *)TIM3_BASE)
-#define TIM4                            ((TIM_ *)TIM4_BASE)
-#define TIM6                            ((TIM_ *)TIM6_BASE)
-#define TIM7                            ((TIM_ *)TIM7_BASE)
-#define TIM9                            ((TIM_ *)TIM9_BASE)
-#define TIM10                           ((TIM_ *)TIM10_BASE)
-#define TIM11                           ((TIM_ *)TIM11_BASE)
-
 /* Registers and bit definitions */
 #define TIM_CR1_CEN                     ((uint16_t)0x0001) 
 #define TIM_CR1_UDIS                    ((uint16_t)0x0002) 
