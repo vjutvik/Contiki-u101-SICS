@@ -4,6 +4,8 @@
 #include "ui2c.h"
 #include "stm32l.h"
 #include "stm32l-gpio.h"
+#include "stm32-clk.h"
+#include "stm32-i2c.h"
 
 #if 0
 #define PRINTF(...) printf(__VA_ARGS__)
