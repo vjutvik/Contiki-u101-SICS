@@ -76,12 +76,20 @@ CFLAGSNO = -I. -I$(CONTIKI_CPU) -I$(CONTIKI_CPU)/loader \
 	   -I$(CONTIKI_CPU)/dbg-io \
            ${addprefix -I,$(APPDIRS)} \
            -DWITH_ASCII -DMCK=$(MCK) \
-           -Wall $(ARCH_FLAGS) -g -D SUBTARGET=$(SUBTARGET)
+           -Wall $(ARCH_FLAGS) -D SUBTARGET=$(SUBTARGET)
 
-CFLAGS  += $(CFLAGSNO) -O -DRUN_AS_SYSTEM -DROM_RUN
+CFLAGS  += $(CFLAGSNO) -Os -DRUN_AS_SYSTEM -DROM_RUN
 LDFLAGS += -L $(CONTIKI_CPU) -T $(LINKERSCRIPT) -nostartfiles
 
 CDEPFLAGS = $(CFLAGS) -D __MAKING_DEPS__
+
+# Garbage collection
+ifeq ($(SMALL),1)
+CFLAGS += -ffunction-sections
+CFLAGS += -fdata-sections
+LDFLAGS += -Wl,--gc-sections,--undefined=_reset_vector__,--undefined=InterruptVectors,--undefined=_copy_data_init__,--undefined=_clear_bss_init__,--undefined=_end_of_init__
+endif # SMALL
+
 
 ### Setup directory search path for source files
 
