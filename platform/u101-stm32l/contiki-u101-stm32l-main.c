@@ -12,6 +12,7 @@
 #include <net/uip.h>
 #include <net/uip-ds6.h>
 
+#include "dev/leds.h"
 #include "clock.h"
 #include "debug-uart.h"
 #include "contiki.h"
@@ -29,6 +30,7 @@
 #include "sensors.h"
 #include "dev/button-sensor.h"
 #include "dev/slip.h"
+#include "rtimer.h"
 
 unsigned int idle_count = 0;
 
@@ -126,7 +128,9 @@ u101_stm32l_init(void)
   int temp;
   rimeaddr_t addr;
 
+  leds_init();
   clock_init();
+  rtimer_init();
   process_init();
   process_start(&etimer_process, NULL);
   ctimer_init();
