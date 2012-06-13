@@ -35,11 +35,11 @@
 
 #include "sys/rtimer.h"
 
-/* This is a big TBD wrt different clock settings and sleep modes... */
-#define RTIMER_ARCH_SECOND (MCK/1024)
+#define RTIMER_ARCH_SECOND 32000
 
+void rtimer_arch_init(void);
+void rtimer_arch_schedule(rtimer_clock_t t);
 void rtimer_arch_set(rtimer_clock_t t);
 rtimer_clock_t rtimer_arch_now(void);
 
 #endif
-

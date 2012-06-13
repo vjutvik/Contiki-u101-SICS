@@ -58,7 +58,7 @@ SysTick_handler(void)
   clock_tick();
 
   /* We might change the ABHCLK during runtime */
-  SysTick->LOAD = stm32_clk_frequency(ahb_clk)/8/CLOCK_SECOND;
+  SysTick->LOAD = stm32_clk_frequency(&ahb_clk)/8/CLOCK_SECOND;
   (void)SysTick->CTRL;
   SCB->ICSR = SCB_ICSR_PENDSTCLR;
 }
@@ -79,7 +79,7 @@ void clock_tick()
 void clock_init()
 {
   uint32_t load;
-  load = (stm32_clk_frequency(ahb_clk)/8)/CLOCK_SECOND;
+  load = (stm32_clk_frequency(&ahb_clk)/8)/CLOCK_SECOND;
 
   printf("CLOCK_SECOND is %d, SysTick LOAD is %ld\n", CLOCK_SECOND, load);
 

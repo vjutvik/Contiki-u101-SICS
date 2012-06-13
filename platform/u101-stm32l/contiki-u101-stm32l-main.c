@@ -63,10 +63,10 @@ u101_stm32l_banner(void)
   printf("Platform u101-stm32l (dev %04x, rev %04x)\n", device, revision);
 #if 1
   printf("Flash: %d kB\n", flash_kb);
-  printf("SYSCLK:  %lu %s\n", stm32_clk_frequency(sys_clk), mhz);
-  printf("AHBCLK:  %lu %s\n", stm32_clk_frequency(ahb_clk), mhz);
-  printf("APBCLK1: %lu %s\n", stm32_clk_frequency(apb1_clk), mhz);
-  printf("APBCLK2: %lu %s\n", stm32_clk_frequency(apb2_clk), mhz);
+  printf("SYSCLK:  %lu %s\n", stm32_clk_frequency(&sys_clk), mhz);
+  printf("AHBCLK:  %lu %s\n", stm32_clk_frequency(&ahb_clk), mhz);
+  printf("APBCLK1: %lu %s\n", stm32_clk_frequency(&apb1_clk), mhz);
+  printf("APBCLK2: %lu %s\n", stm32_clk_frequency(&apb2_clk), mhz);
   printf("UID96: %04x %04x %04x %04x %04x %04x\n", 
          uid96[0], uid96[1], uid96[2], uid96[3], uid96[4], uid96[5]);
   printf("PID16: %04x\n", pid16);

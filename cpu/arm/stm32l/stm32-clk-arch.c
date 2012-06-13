@@ -30,6 +30,7 @@
  *
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include "stm32-clk.h"
 #include "stm32l-rcc.h"
@@ -143,9 +144,10 @@ uint32_t stm32l_clk_sysclk(void)
         uint32_t clk_conf = RCC->CFGR & RCC_CFGR_SWS;
         uint32_t pllsrc = RCC->CFGR & RCC_CFGR_PLLSRC;
         uint32_t pllin;
+        const uint32_t icsrange = RCC->ICSCR & RCC_ICSCR;
 
         switch (clk_conf) {
-                const uint32_t icsrange = RCC->ICSCR & RCC_ICSCR;
+                 
         case RCC_CFGR_SWS_MSI:
                 /* Affected by RCC_ICSCR but the default value is this. */
 
@@ -241,33 +243,36 @@ stm32_clk apb2_clk = {
   .freq = stm32l_clk_pclk2,
 };
 
-stm32_clk stm32_clk_arch_clkof(void *periph)
+stm32_clk *stm32_clk_arch_clkof(void *periph)
 {
   switch ((uint32_t)periph) {
     /*
   case ADC1_BASE:
   case ADC2_BASE:
   case ADC3_BASE:
-  case SPI1_BASE:
-  case TIM1_BASE:
-  case TIM8_BASE:
     */
+  case SPI1_BASE:
   case USART1_BASE:
-    return apb2_clk;
+    return &apb2_clk;
     break;
     /*
   case DAC_BASE:
   case PWR_BASE:
   case BKP_BASE:
   case CAN_BASE:
-  case I2C1_BASE:
   case I2C2_BASE:
   case UART4_BASE:
   case UART5_BASE:
     */
+  case I2C1_BASE:
+  case TIM2_BASE:
+  case TIM3_BASE:
+  case TIM4_BASE:
+  case TIM6_BASE:
+  case TIM7_BASE:
   case USART2_BASE:
   case USART3_BASE:
-    return apb1_clk;
+    return &apb1_clk;
     break;
   case GPIOA_BASE:
   case GPIOB_BASE:
@@ -275,11 +280,14 @@ stm32_clk stm32_clk_arch_clkof(void *periph)
   case GPIOD_BASE:
   case GPIOE_BASE:
   case GPIOH_BASE:
-    return apb1_clk;
+    return &ahb_clk;
     break;
   default:
     /* Badness */
-    return apb1_clk;
+    printf("Bad peripheral (%lx)\n", periph);
+    while(1)
+      ;
+    return NULL;
     break;
   }
 }
@@ -302,7 +310,6 @@ static void stm32l_switch_pclk(void *periph, int enable)
     reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_USART2EN;  break;
   case USART3_BASE: 
     reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_USART3EN;  break;
-
   case GPIOA_BASE:
     reg = &(RCC->AHBENR);   bit = RCC_AHBENR_GPIOAEN;    break;
   case GPIOB_BASE:
@@ -315,15 +322,30 @@ static void stm32l_switch_pclk(void *periph, int enable)
     reg = &(RCC->AHBENR);   bit = RCC_AHBENR_GPIOEEN;    break;
   case GPIOH_BASE:
     reg = &(RCC->AHBENR);   bit = RCC_AHBENR_GPIOHEN;    break;
-
+  case TIM2_BASE:
+    reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_TIM2EN;    break;
+  case TIM3_BASE:
+    reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_TIM3EN;    break;
+  case TIM4_BASE:
+    reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_TIM4EN;    break;
+  case TIM6_BASE:
+    reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_TIM6EN;    break;
+  case TIM7_BASE:
+    reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_TIM7EN;    break;
   case SPI1_BASE:
     reg = &(RCC->APB2ENR);  bit = RCC_APB2ENR_SPI1EN;    break;
   case I2C1_BASE:
     reg = &(RCC->APB1ENR);  bit = RCC_APB1ENR_I2C1EN;    break;
+  case TIM9_BASE:
+    reg = &(RCC->APB2ENR);  bit = RCC_APB2ENR_TIM9EN;    break;
+  case TIM10_BASE:
+    reg = &(RCC->APB2ENR);  bit = RCC_APB2ENR_TIM10EN;   break;
+  case TIM11_BASE:
+    reg = &(RCC->APB2ENR);  bit = RCC_APB2ENR_TIM11EN;   break;
 
 
   default:
-    printf("Can not enable peripheral at address %x\n", (uint32_t)periph);
+    printf("Can not enable peripheral at address %lx\n", (uint32_t)periph);
     /* No such peripheral */
     break;
   }

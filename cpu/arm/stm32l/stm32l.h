@@ -39,6 +39,7 @@
 #include "stm32-spi.h"
 #include "stm32-i2c.h"
 #include "stm32-usart.h"
+#include "stm32-tim.h"
 
 /* STM32L-specific */
 #include "stm32l-gpio.h"
@@ -112,6 +113,24 @@
 #define PWR                             ((STM32L_PWR *)PWR_BASE)
 
 /* APB1 */
+#define TIM2_BASE                       (APB1PERIPH_BASE + 0x0000)
+#define TIM2                            ((STM32_TIM *)TIM2_BASE)
+
+#define TIM3_BASE                       (APB1PERIPH_BASE + 0x0400)
+#define TIM3                            ((STM32_TIM *)TIM3_BASE)
+
+#define TIM4_BASE                       (APB1PERIPH_BASE + 0x0800)
+#define TIM4                            ((STM32_TIM *)TIM4_BASE)
+
+/* TIM5 is a 32-bit timer and doesn't exist in some STM32L models */
+#define TIM5_BASE                       (APB1PERIPH_BASE + 0x0c00)
+#define TIM5                            ((STM32_TIM *)TIM5_BASE)
+
+#define TIM6_BASE                       (APB1PERIPH_BASE + 0x1000)
+#define TIM6                            ((STM32_TIM *)TIM6_BASE)
+
+#define TIM7_BASE                       (APB1PERIPH_BASE + 0x1400)
+#define TIM7                            ((STM32_TIM *)TIM7_BASE)
 
 #define SPI2_BASE                       (APB1PERIPH_BASE + 0x3800)
 #define SPI2                            ((STM32_SPI *)SPI2_BASE)
@@ -139,6 +158,15 @@
 
 #define EXTI_BASE                       (APB2PERIPH_BASE + 0x0400)
 #define EXTI                            ((STM32L_EXTI *)EXTI_BASE)
+
+#define TIM9_BASE                       (APB2PERIPH_BASE + 0x0800)
+#define TIM9                            ((STM32_TIM *)TIM9_BASE)
+
+#define TIM10_BASE                      (APB2PERIPH_BASE + 0x0C00)
+#define TIM10                           ((STM32_TIM *)TIM10_BASE)
+
+#define TIM11_BASE                      (APB2PERIPH_BASE + 0x1000)
+#define TIM11                           ((STM32_TIM *)TIM11_BASE)
 
 #define SPI1_BASE                       (APB2PERIPH_BASE + 0x3000)
 #define SPI1                            ((STM32_SPI *)SPI1_BASE)

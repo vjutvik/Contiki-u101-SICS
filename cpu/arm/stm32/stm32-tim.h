@@ -46,24 +46,6 @@ typedef struct {
   uint16_t R20;
 } STM32_TIM;
 
-#define TIM2_BASE                       (APB1PERIPH_BASE + 0x0000)
-#define TIM3_BASE                       (APB1PERIPH_BASE + 0x0400)
-#define TIM4_BASE                       (APB1PERIPH_BASE + 0x0800)
-#define TIM6_BASE                       (APB1PERIPH_BASE + 0x1000)
-#define TIM7_BASE                       (APB1PERIPH_BASE + 0x1400)
-#define TIM9_BASE                       (APB2PERIPH_BASE + 0x0800)
-#define TIM10_BASE                      (APB2PERIPH_BASE + 0x0C00)
-#define TIM11_BASE                      (APB2PERIPH_BASE + 0x1000)
-
-#define TIM2                            ((TIM_ *)TIM2_BASE)
-#define TIM3                            ((TIM_ *)TIM3_BASE)
-#define TIM4                            ((TIM_ *)TIM4_BASE)
-#define TIM6                            ((TIM_ *)TIM6_BASE)
-#define TIM7                            ((TIM_ *)TIM7_BASE)
-#define TIM9                            ((TIM_ *)TIM9_BASE)
-#define TIM10                           ((TIM_ *)TIM10_BASE)
-#define TIM11                           ((TIM_ *)TIM11_BASE)
-
 /* Registers and bit definitions */
 #define TIM_CR1_CEN                     ((uint16_t)0x0001) 
 #define TIM_CR1_UDIS                    ((uint16_t)0x0002) 
@@ -104,6 +86,42 @@ typedef struct {
 #define TIM_DIER_CC4DE                  ((uint16_t)0x1000)
 #define TIM_DIER_COMDE                  ((uint16_t)0x2000)
 #define TIM_DIER_TDE                    ((uint16_t)0x4000)
+
+#define TIM_SR_UIF                      ((uint16_t)0x0001)
+#define TIM_SR_TIF                      ((uint16_t)0x0040)
+#define TIM_SR_CC1IF                    ((uint16_t)0x0002)
+#define TIM_SR_CC1OF                    ((uint16_t)0x0200)
+
+#define TIM_CCMR1_CC1S0                 ((uint16_t)0x0001)
+#define TIM_CCMR1_CC1S1                 ((uint16_t)0x0002)
+#define TIM_CCMR1_OC1FE                 ((uint16_t)0x0004)
+#define TIM_CCMR1_OC1PE                 ((uint16_t)0x0008)
+#define TIM_CCMR1_OC1M0                 ((uint16_t)0x0010)
+#define TIM_CCMR1_OC1M1                 ((uint16_t)0x0020)
+#define TIM_CCMR1_OC1M2                 ((uint16_t)0x0040)
+#define TIM_CCMR1_OC1CE                 ((uint16_t)0x0080)
+#define TIM_CCMR1_CC2S0                 ((uint16_t)0x0100)
+#define TIM_CCMR1_CC2S1                 ((uint16_t)0x0200)
+#define TIM_CCMR1_OC2FE                 ((uint16_t)0x0400)
+#define TIM_CCMR1_OC2PE                 ((uint16_t)0x0800)
+#define TIM_CCMR1_OC2M0                 ((uint16_t)0x1000)
+#define TIM_CCMR1_OC2M1                 ((uint16_t)0x2000)
+#define TIM_CCMR1_OC2M2                 ((uint16_t)0x4000)
+#define TIM_CCMR1_OC2CE                 ((uint16_t)0x8000)
+
+#define TIM_CCER_CC1E                   ((uint16_t)0x0001)
+#define TIM_CCER_CC1P                   ((uint16_t)0x0002)
+#define TIM_CCER_CC1NP                  ((uint16_t)0x0008)
+#define TIM_CCER_CC2E                   ((uint16_t)0x0010)
+#define TIM_CCER_CC2P                   ((uint16_t)0x0020)
+#define TIM_CCER_CC2NP                  ((uint16_t)0x0080)
+#define TIM_CCER_CC3E                   ((uint16_t)0x0100)
+#define TIM_CCER_CC3P                   ((uint16_t)0x0200)
+#define TIM_CCER_CC3NP                  ((uint16_t)0x0800)
+#define TIM_CCER_CC4E                   ((uint16_t)0x1000)
+#define TIM_CCER_CC4P                   ((uint16_t)0x2000)
+#define TIM_CCER_CC4NP                  ((uint16_t)0x8000)
+
 
 #endif
 
