@@ -76,8 +76,10 @@ void stm32_i2c_disable(STM32_I2C *i2c);
 void stm32_i2c_enable(STM32_I2C *i2c);
 void stm32_i2c_init(STM32_I2C *i2c);
 void stm32_i2c_set_rate(STM32_I2C *i2c, uint32_t rate);
-int i2c_write(STM32_I2C *i2c, uint8_t addr, const uint8_t len, uint8_t *buf, 
-              uint8_t nostop);
+int stm32_i2c_write(STM32_I2C *i2c, uint8_t addr, const uint8_t len, 
+                    uint8_t *buf, uint8_t stop);
+int stm32_i2c_read(STM32_I2C *i2c, uint8_t addr, const uint8_t len, 
+                   uint8_t *buf);
 
 #endif
 
