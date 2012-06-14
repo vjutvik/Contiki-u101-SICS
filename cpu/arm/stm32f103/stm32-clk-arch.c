@@ -196,7 +196,7 @@ stm32_clk apb2_clk = {
   .freq = stm32f_clk_pclk2,
 };
 
-stm32_clk stm32_clk_arch_clkof(void *periph)
+stm32_clk *stm32_clk_arch_clkof(void *periph)
 {
   switch ((uint32_t)periph) {
     /*
@@ -208,7 +208,7 @@ stm32_clk stm32_clk_arch_clkof(void *periph)
     */
   case SPI1_BASE:
   case USART1_BASE:
-    return apb2_clk;
+    return &apb2_clk;
     break;
     /*
   case DAC_BASE:
@@ -223,12 +223,12 @@ stm32_clk stm32_clk_arch_clkof(void *periph)
   case SPI2_BASE:
   case USART2_BASE:
   case USART3_BASE:
-    return apb1_clk;
+    return &apb1_clk;
     break;
 
   default:
     /* Badness */
-    return apb1_clk;
+    return NULL;
     break;
   }
 }
