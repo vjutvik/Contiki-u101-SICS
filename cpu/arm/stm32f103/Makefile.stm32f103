@@ -25,6 +25,7 @@ STM32F103 += newlib-syscalls.c
 STM32F103 += stm32-clk-arch.c
 STM32F103 += stm32-clk.c
 STM32F103 += stm32-spi.c
+STM32F103 += stm32-i2c.c
 STM32F103 += watchdog.c
 
 # SYSAPPS = codeprop-otf.c
@@ -47,13 +48,14 @@ CONTIKI_SOURCEFILES        += $(CONTIKI_TARGET_SOURCEFILES)
 THREADS =
 
 ### Compiler definitions
-CC       = arm-elf-gcc
-LD       = arm-elf-ld
-AS       = arm-elf-as
-AR       = arm-elf-ar
-NM       = arm-elf-nm
-OBJCOPY  = arm-elf-objcopy
-STRIP    = arm-elf-strip
+
+CC       = arm-none-eabi-gcc
+LD       = arm-none-eabi-ld
+AS       = arm-none-eabi-as
+AR       = arm-none-eabi-ar
+NM       = arm-none-eabi-nm
+OBJCOPY  = arm-none-eabi-objcopy
+STRIP    = arm-none-eabi-strip
 
 XSLTPROC=xsltproc
 
@@ -81,7 +83,7 @@ CFLAGSNO = -I. -I$(CONTIKI)/core -I$(CONTIKI_CPU) -I$(CONTIKI_CPU)/loader \
 	   -I$(CONTIKI_CPU)/dbg-io \
            -I$(CONTIKI)/platform/$(TARGET) \
            ${addprefix -I,$(APPDIRS)} \
-           -DWITH_UIP -DWITH_ASCII -DMCK=$(MCK) \
+           -DWITH_ASCII -DMCK=$(MCK) \
            -Wall $(ARCH_FLAGS) -g -D SUBTARGET=$(SUBTARGET)
 
 CFLAGS  += $(CFLAGSNO) -O0 -DRUN_AS_SYSTEM -DROM_RUN

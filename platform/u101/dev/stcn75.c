@@ -6,6 +6,7 @@
 #include <sys/autostart.h>
 #include <sys/etimer.h>
 #include "ui2c.h"
+#include "platform-conf.h"
 #include "stcn75.h"
 
 const ui2c_slave stcn75_i2c = {

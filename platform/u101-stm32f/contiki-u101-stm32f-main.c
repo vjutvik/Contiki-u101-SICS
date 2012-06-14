@@ -24,6 +24,7 @@
 #include "stm32-spi.h"
 #include "stm32-id.h"
 #include "uspi.h"
+#include "ui2c.h"
 #include "rf230bb.h"
 #include "crc16.h"
 #include "dev/button-sensor.h"
@@ -32,6 +33,9 @@ unsigned int idle_count = 0;
 
 const uspi_master spim1 = {
   .bus = (uint32_t)SPI1,
+};
+const ui2c_master i2cm1 = {
+  .bus = (uint32_t)I2C1,
 };
 
 SENSORS(&button_sensor);
@@ -56,10 +60,10 @@ u101_stm32f_banner(void)
 
   printf("\n\nInitialising %s\n", CONTIKI_VERSION_STRING);
   printf("Platform u101-stm32f (dev %04x, rev %04x)\n", device, revision);
-  printf("SYSCLK:  %lu %s\n", stm32_clk_frequency(sys_clk), mhz);
-  printf("AHBCLK:  %lu %s\n", stm32_clk_frequency(ahb_clk), mhz);
-  printf("APBCLK1: %lu %s\n", stm32_clk_frequency(apb1_clk), mhz);
-  printf("APBCLK2: %lu %s\n", stm32_clk_frequency(apb2_clk), mhz);
+  printf("SYSCLK:  %lu %s\n", stm32_clk_frequency(&sys_clk), mhz);
+  printf("AHBCLK:  %lu %s\n", stm32_clk_frequency(&ahb_clk), mhz);
+  printf("APBCLK1: %lu %s\n", stm32_clk_frequency(&apb1_clk), mhz);
+  printf("APBCLK2: %lu %s\n", stm32_clk_frequency(&apb2_clk), mhz);
   printf("UID96:       %04x %04x %04x %04x %04x %04x\n", 
          uid96[0], uid96[1], uid96[2], uid96[3], uid96[4], uid96[5]);
   printf("PseudoID16:  %04x\n", pseudoid16);

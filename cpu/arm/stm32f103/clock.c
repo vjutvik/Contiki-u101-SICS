@@ -26,7 +26,7 @@ SysTick_handler(void)
     /* printf("%d,%d\n", clock_time(),etimer_next_expiration_time  	()); */
 
   }
-  SysTick->LOAD = stm32_clk_frequency(ahb_clk)/8/CLOCK_SECOND;
+  SysTick->LOAD = stm32_clk_frequency(&ahb_clk)/8/CLOCK_SECOND;
   if (--second_countdown == 0) {
     current_seconds++;
     second_countdown = CLOCK_SECOND;
@@ -38,7 +38,7 @@ void
 clock_init()
 {
   NVIC_SET_SYSTICK_PRI(8);
-  SysTick->LOAD = stm32_clk_frequency(ahb_clk)/8/CLOCK_SECOND;
+  SysTick->LOAD = stm32_clk_frequency(&ahb_clk)/8/CLOCK_SECOND;
   SysTick->CTRL = SysTick_CTRL_ENABLE | SysTick_CTRL_TICKINT;
 }
 

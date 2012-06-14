@@ -15,8 +15,6 @@ const ui2c_slave lsm303dlh_i2c = {
   .name = "lsm303"
 };
 
-int lsm303acc[3];
-int lsm303mag[3];
 
 /* We don't handle reading multiple bytes yet. */
 int lsm303_read(uint8_t addr, uint8_t reg, uint8_t *data)
@@ -114,6 +112,7 @@ int lsm303_get_xacc_newton(int *acc)
   int res;
   uint8_t rawacc[6];
   uint8_t rawmag[6];
+  int lsm303acc[3];
 
   res = lsm303_get(rawacc, rawmag);
   if (0 != res) {

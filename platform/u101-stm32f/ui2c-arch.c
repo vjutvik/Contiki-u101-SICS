@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include "stm32-i2c.h"
 #include "ui2c.h"
-#include "stm32l.h"
-#include "stm32l-gpio.h"
+#include "gpio.h"
 #include "stm32-clk.h"
 #include "stm32-i2c.h"
 
@@ -20,14 +19,17 @@ ui2c_arch_master_init(const ui2c_master *m)
   bus = (STM32_I2C *)m->bus;
 
   if (bus == I2C1) {
+    /*
+      Enable alternate functions, port B and i2c
+    */
+    RCC->APB2ENR |= (RCC_APB2ENR_AFIOEN |
+                     RCC_APB2ENR_IOPBEN);
+    RCC->APB1ENR |= (RCC_APB1ENR_I2C1EN);
 
-    /* Configure GPIO for I2C pins */
-    stm32l_gpio_conf_af(GPIOB, 6, GPIO_OUTPUT_TYPE_ODRAIN, 
-                        GPIO_OSPEED_40MHZ, GPIO_RESISTORS_NONE);
-    stm32l_gpio_conf_af(GPIOB, 7, GPIO_OUTPUT_TYPE_ODRAIN, 
-                        GPIO_OSPEED_40MHZ, GPIO_RESISTORS_NONE);
-    stm32l_gpio_map_af(GPIOB, 6, GPIO_AF_I2C1);
-    stm32l_gpio_map_af(GPIOB, 7, GPIO_AF_I2C1);
+    /* SCL1 */
+    GPIO_CONF_OUTPUT_PORT(B, 6, ALT_OPEN_DRAIN, 50);
+    /* SDA1 */
+    GPIO_CONF_OUTPUT_PORT(B, 7, ALT_OPEN_DRAIN, 50);
 
     /* Enable clock to I2C peripheral */
     stm32_clk_pclk_enable(I2C1);
