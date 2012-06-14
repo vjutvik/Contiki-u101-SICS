@@ -3,6 +3,12 @@
 
 #include <stdint.h>
 
+#ifdef PLATFORM_CONF_H
+#include PLATFORM_CONF_H
+#else
+#include "platform-conf.h"
+#endif /* PLATFORM_CONF_H */
+
 #define CCIF
 #define CLIF
 

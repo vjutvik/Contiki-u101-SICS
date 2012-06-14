@@ -33,8 +33,11 @@
 #include <stdlib.h>
 #include "stm32-clk.h"
 #include "stm32f10x_map.h"
+#include "contiki-conf.h"
 
-const uint32_t osc_in = 8 * 1000 * 1000l;
+/* Frequency in HZ of the crystal oscillator input. 
+   Should be defined in contiki-conf.h or platform-conf.h */
+const uint32_t osc_in = OSC_IN_FREQ;
 
 static uint32_t get_pllmul(void)
 {

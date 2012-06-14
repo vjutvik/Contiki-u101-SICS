@@ -5,7 +5,10 @@
 #include "uspi.h"
 #include "ui2c.h"
 #include "stm32-spi.h"
-#include "stm32l-gpio.h"
+#include "stm32-clk.h"
+
+/* Frequency in HZ of the crystal oscillator input */
+#define OSC_IN_FREQ (8 * MHZ)
 
 extern const uspi_master spim1;
 extern const uspi_master spim2;
