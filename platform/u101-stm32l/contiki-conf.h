@@ -93,7 +93,7 @@ typedef unsigned int uip_stats_t;
 #define UIP_CONF_ND6_MAX_NEIGHBORS      2
 #define UIP_CONF_ND6_MAX_DEFROUTERS     2
 #define UIP_CONF_IP_FORWARD             0
-#define UIP_CONF_BUFFER_SIZE            300
+#define UIP_CONF_BUFFER_SIZE            1300
 #define SICSLOWPAN_CONF_FRAG            1
 #define SICSLOWPAN_CONF_MAXAGE          8
 
@@ -128,6 +128,8 @@ typedef unsigned int uip_stats_t;
 
 #define USB_EP1_SIZE 64
 #define USB_EP2_SIZE 64
+
+#define RAND_MAX 0x7fff
 
 #define DBG_UART_NUM 3
 #define DBG_UART_TXPORT B
