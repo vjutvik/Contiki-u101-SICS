@@ -37,7 +37,7 @@ include $(CONTIKI_CPU_ARM_COMMON)/usb/Makefile.usb
 
 include $(CONTIKI_CPU_ARM_COMMON)/SD-card/Makefile.sdcard
 
-TARGETLIBS = random.c dbg-printf.c dbg-puts.c dbg-putchar.c dbg-sprintf.c dbg-snprintf.c strformat.c
+TARGETLIBS = leds.c random.c dbg-printf.c dbg-puts.c dbg-putchar.c dbg-sprintf.c dbg-snprintf.c strformat.c
 
 CONTIKI_TARGET_SOURCEFILES += $(STM32L) $(SYSAPPS) $(ELFLOADER) \
 			$(TARGETLIBS) $(UIPDRIVERS) $(USB)
