@@ -5,8 +5,8 @@
 #include <sys/process.h>
 #include <sys/autostart.h>
 #include <sys/etimer.h>
-#include <leds.h>
 #include "ui2c.h"
+#include "platform-conf.h"
 #include "l3g4200d.h"
 
 const ui2c_slave l3g4200d_i2c = {
