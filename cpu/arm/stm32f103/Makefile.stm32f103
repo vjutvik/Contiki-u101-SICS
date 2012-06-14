@@ -25,6 +25,7 @@ STM32F103 += newlib-syscalls.c
 STM32F103 += stm32-clk-arch.c
 STM32F103 += stm32-clk.c
 STM32F103 += stm32-spi.c
+STM32F103 += stm32-i2c.c
 STM32F103 += watchdog.c
 
 # SYSAPPS = codeprop-otf.c
