@@ -47,13 +47,14 @@ CONTIKI_SOURCEFILES        += $(CONTIKI_TARGET_SOURCEFILES)
 THREADS =
 
 ### Compiler definitions
-CC       = arm-elf-gcc
-LD       = arm-elf-ld
-AS       = arm-elf-as
-AR       = arm-elf-ar
-NM       = arm-elf-nm
-OBJCOPY  = arm-elf-objcopy
-STRIP    = arm-elf-strip
+
+CC       = arm-none-eabi-gcc
+LD       = arm-none-eabi-ld
+AS       = arm-none-eabi-as
+AR       = arm-none-eabi-ar
+NM       = arm-none-eabi-nm
+OBJCOPY  = arm-none-eabi-objcopy
+STRIP    = arm-none-eabi-strip
 
 XSLTPROC=xsltproc
 
