@@ -24,6 +24,7 @@
 #include "stm32-spi.h"
 #include "stm32-id.h"
 #include "uspi.h"
+#include "ui2c.h"
 #include "rf230bb.h"
 #include "crc16.h"
 #include "dev/button-sensor.h"
@@ -32,6 +33,9 @@ unsigned int idle_count = 0;
 
 const uspi_master spim1 = {
   .bus = (uint32_t)SPI1,
+};
+const ui2c_master i2cm1 = {
+  .bus = (uint32_t)I2C1,
 };
 
 SENSORS(&button_sensor);
