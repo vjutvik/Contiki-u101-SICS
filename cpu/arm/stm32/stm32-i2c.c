@@ -73,11 +73,11 @@ stm32_i2c_init(STM32_I2C *i2c)
 
   /* Set peripheral frequency (APB clock) */
   tmp = i2c->CR2 & ~(I2C_CR2_FREQ);
-  tmp |= pclk_rate / 1000 * 1000;
+  tmp |= pclk_rate / (1000 * 1000);
   i2c->CR2 = tmp;
 
   /* Rise time. */
-  tmp = pclk_rate / 1000 * 1000;
+  tmp = pclk_rate / (1000 * 1000);
   i2c->TRISE = tmp + 1;
 
   /* Set ACK bit */
